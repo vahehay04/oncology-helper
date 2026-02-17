@@ -9,13 +9,34 @@ export default function Home() {
   const [query, setQuery] = useState("");
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
+  const [attachedFile, setAttachedFile] = useState(null);
+  const [uploadedFileUrl, setUploadedFileUrl] = useState(null);
+  const fileInputRef = useRef(null);
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setAttachedFile(file);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    setUploadedFileUrl(file_url);
+  };
+
+  const removeFile = () => {
+    setAttachedFile(null);
+    setUploadedFileUrl(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   const handleAsk = async () => {
-    if (!query.trim()) return;
+    if (!query.trim() && !attachedFile) return;
     setLoading(true);
     setAnswer("");
-    const res = await base44.integrations.Core.InvokeLLM({
-      prompt: `Ты — AI-консультант по онкологии, который объясняет медицинские рекомендации понятно и просто для пациентов.
+
+    const prompt = uploadedFileUrl
+      ? `Ты — AI-консультант по онкологии. Пользователь прикрепил документ с медицинскими рекомендациями или материалами. Проанализируй содержимое документа и ответь на вопрос или сделай краткое резюме ключевых рекомендаций, если вопрос не задан. Отвечай понятно и доступно. Напомни, что для точной диагностики нужно обратиться к врачу.
+
+${query ? `Вопрос пользователя: ${query}` : "Сделай краткое резюме документа и выдели ключевые рекомендации."}`
+      : `Ты — AI-консультант по онкологии, который объясняет медицинские рекомендации понятно и просто для пациентов.
 
 ИСТОЧНИКИ (обязательно используй эти клинические рекомендации):
 1. Клинические рекомендации Минздрава РФ — https://cr.minzdrav.gov.ru/preview-cr/921_1
@@ -24,8 +45,12 @@ export default function Home() {
 
 Ответь на вопрос пациента, основываясь на этих источниках. Ответ должен быть доступным, но точным. Не указывай ссылки на источники в ответе. Напомни, что для точной диагностики нужно обратиться к врачу.
 
-Вопрос пациента: ${query}`,
-      add_context_from_internet: true,
+Вопрос пациента: ${query}`;
+
+    const res = await base44.integrations.Core.InvokeLLM({
+      prompt,
+      add_context_from_internet: !uploadedFileUrl,
+      ...(uploadedFileUrl && { file_urls: [uploadedFileUrl] }),
     });
     setAnswer(res);
     setLoading(false);
