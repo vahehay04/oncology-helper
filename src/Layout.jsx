@@ -42,6 +42,12 @@ export default function Layout({ children, currentPageName }) {
           </Link>
           <nav className="flex items-center gap-6">
             <Link
+              to={createPageUrl("Home")}
+              className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
+            >
+              На главную
+            </Link>
+            <Link
               to={createPageUrl("CasesList")}
               className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
             >
