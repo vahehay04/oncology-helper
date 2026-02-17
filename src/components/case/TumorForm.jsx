@@ -66,8 +66,7 @@ export default function TumorForm({ data, onChange }) {
             <SelectContent>
               {MKB_CODES.map(m => (
                 <SelectItem key={m.code} value={m.code}>
-                  <span className="font-mono font-medium">{m.code}</span>
-                  <span className="ml-2 text-gray-500">— {m.desc}</span>
+                  {m.code} — {m.desc}
                 </SelectItem>
               ))}
             </SelectContent>
