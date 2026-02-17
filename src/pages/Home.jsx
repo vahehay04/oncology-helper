@@ -22,7 +22,7 @@ export default function Home() {
 2. Рекомендации RUSSCO 2025 — https://rosoncoweb.ru/standarts/RUSSCO/2025/2025-1-2-12.pdf
 3. ESMO Clinical Practice Guideline — https://melnet.org.nz/new-blog/cutaneous-melanoma-esmo-clinical-practice-guideline-for-diagnosis-treatment-and-follow-up
 
-Ответь на вопрос пациента, основываясь на этих источниках. Ответ должен быть доступным, но точным. В конце ответа укажи, на какой источник ты ссылаешься. Напомни, что для точной диагностики нужно обратиться к врачу.
+Ответь на вопрос пациента, основываясь на этих источниках. Ответ должен быть доступным, но точным. Не указывай ссылки на источники в ответе. Напомни, что для точной диагностики нужно обратиться к врачу.
 
 Вопрос пациента: ${query}`,
       add_context_from_internet: true,
