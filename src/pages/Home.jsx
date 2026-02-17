@@ -15,7 +15,14 @@ export default function Home() {
     setLoading(true);
     setAnswer("");
     const res = await base44.integrations.Core.InvokeLLM({
-      prompt: `Ты — AI-консультант по онкологии, который объясняет медицинские рекомендации понятно и просто для пациентов. Ответь на вопрос пациента, основываясь на актуальных клинических рекомендациях. Ответ должен быть доступным, но точным. Укажи, что для точной диагностики нужно обратиться к врачу.
+      prompt: `Ты — AI-консультант по онкологии, который объясняет медицинские рекомендации понятно и просто для пациентов.
+
+ИСТОЧНИКИ (обязательно используй эти клинические рекомендации):
+1. Клинические рекомендации Минздрава РФ — https://cr.minzdrav.gov.ru/preview-cr/921_1
+2. Рекомендации RUSSCO 2025 — https://rosoncoweb.ru/standarts/RUSSCO/2025/2025-1-2-12.pdf
+3. ESMO Clinical Practice Guideline — https://melnet.org.nz/new-blog/cutaneous-melanoma-esmo-clinical-practice-guideline-for-diagnosis-treatment-and-follow-up
+
+Ответь на вопрос пациента, основываясь на этих источниках. Ответ должен быть доступным, но точным. В конце ответа укажи, на какой источник ты ссылаешься. Напомни, что для точной диагностики нужно обратиться к врачу.
 
 Вопрос пациента: ${query}`,
       add_context_from_internet: true,
