@@ -84,26 +84,53 @@ ${query ? `Вопрос пользователя: ${query}` : "Сделай кр
             transition={{ duration: 0.8, delay: 0.2 }}
             className="w-full max-w-2xl mx-auto"
           >
-            <div className="glass-input rounded-2xl flex items-center px-6 py-4 shadow-xl shadow-gray-200/30 hover:shadow-gray-200/50 transition-shadow">
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleAsk()}
-                placeholder="Введите Ваш вопрос / рекомендацию..."
-                className="flex-1 bg-transparent outline-none text-gray-800 placeholder:text-gray-400 text-base"
-              />
-              <button
-                onClick={handleAsk}
-                disabled={loading}
-                className="ml-3 w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors disabled:opacity-50"
-              >
-                {loading ? (
-                  <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <Send className="w-4 h-4 text-gray-600" />
-                )}
-              </button>
+            <div className="glass-input rounded-2xl shadow-xl shadow-gray-200/30 hover:shadow-gray-200/50 transition-shadow">
+              {attachedFile && (
+                <div className="flex items-center gap-2 px-6 pt-4 pb-2">
+                  <div className="flex items-center gap-2 bg-indigo-50 text-indigo-700 rounded-lg px-3 py-1.5 text-sm">
+                    <FileText className="w-4 h-4 flex-shrink-0" />
+                    <span className="truncate max-w-[200px]">{attachedFile.name}</span>
+                    <button onClick={removeFile} className="ml-1 hover:text-indigo-900">
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              )}
+              <div className="flex items-center px-6 py-4">
+                <input
+                  type="text"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleAsk()}
+                  placeholder={attachedFile ? "Задайте вопрос по документу или отправьте для анализа..." : "Введите Ваш вопрос / рекомендацию..."}
+                  className="flex-1 bg-transparent outline-none text-gray-800 placeholder:text-gray-400 text-base"
+                />
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="ml-3 w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+                  title="Прикрепить документ"
+                >
+                  <Paperclip className="w-4 h-4 text-gray-600" />
+                </button>
+                <button
+                  onClick={handleAsk}
+                  disabled={loading}
+                  className="ml-2 w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors disabled:opacity-50"
+                >
+                  {loading ? (
+                    <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Send className="w-4 h-4 text-gray-600" />
+                  )}
+                </button>
+              </div>
             </div>
           </motion.div>
 
