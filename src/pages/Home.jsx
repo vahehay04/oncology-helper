@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Send, Sparkles, Shield, BookOpen } from "lucide-react";
+import { ArrowRight, Send, Sparkles, Shield, BookOpen, Paperclip, X, FileText } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "../utils";
 import { base44 } from "@/api/base44Client";
