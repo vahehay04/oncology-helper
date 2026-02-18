@@ -5,6 +5,15 @@ import { Brain } from "lucide-react";
 
 export default function Layout({ children, currentPageName }) {
   const isHome = currentPageName === "Home";
+  const [role, setRole] = React.useState(() => sessionStorage.getItem("userRole"));
+
+  React.useEffect(() => {
+    const handleStorage = () => setRole(sessionStorage.getItem("userRole"));
+    window.addEventListener("roleSelected", handleStorage);
+    return () => window.removeEventListener("roleSelected", handleStorage);
+  }, []);
+
+  const hideNav = !role || role === "patient";
 
   return (
     <div className="min-h-screen bg-white font-sans">
