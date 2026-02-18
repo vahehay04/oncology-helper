@@ -76,7 +76,7 @@ export default function Layout({ children, currentPageName }) {
       </header>
 
       {/* Content */}
-      <main className="pt-16">
+      <main className={hideHeader ? "" : "pt-16"}>
         {children}
       </main>
     </div>
