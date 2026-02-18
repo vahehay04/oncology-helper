@@ -72,55 +72,6 @@ export default function Home() {
 
           {/* Onboarding tour */}
           {role && <OnboardingTour role={role} />}
-
-          {/* Patient mode */}
-          {role === "patient" && (
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-2xl mx-auto">
-              <div id="tour-patient-input" className="glass-input rounded-2xl shadow-xl shadow-gray-200/30">
-                {attachedFile && (
-                  <div className="flex items-center gap-2 px-6 pt-4 pb-2">
-                    <div className="flex items-center gap-2 bg-rose-50 text-rose-700 rounded-lg px-3 py-1.5 text-sm">
-                      <FileText className="w-4 h-4 flex-shrink-0" />
-                      <span className="truncate max-w-[200px]">{attachedFile.name}</span>
-                      <button onClick={removeFile}><X className="w-3.5 h-3.5 ml-1" /></button>
-                    </div>
-                  </div>
-                )}
-                <div className="flex items-center px-6 py-4">
-                  <input
-                    type="text"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleAsk()}
-                    placeholder={attachedFile ? "Задайте вопрос по документу..." : "Введите Ваш вопрос..."}
-                    className="flex-1 bg-transparent outline-none text-gray-800 placeholder:text-gray-400 text-base"
-                  />
-                  <input ref={fileInputRef} type="file" accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg" onChange={handleFileChange} className="hidden" />
-                  <button id="tour-patient-attach" onClick={() => fileInputRef.current?.click()} className="ml-3 w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors" title="Прикрепить документ">
-                    <Paperclip className="w-4 h-4 text-gray-600" />
-                  </button>
-                  <button onClick={handleAsk} disabled={loading} className="ml-2 w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors disabled:opacity-50">
-                    {loading ? <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" /> : <Send className="w-4 h-4 text-gray-600" />}
-                  </button>
-                </div>
-              </div>
-
-              {answer && (
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-6 text-left">
-                  <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Sparkles className="w-4 h-4 text-rose-400" />
-                      <span className="text-sm font-medium text-rose-500">AI-ответ</span>
-                    </div>
-                    <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{answer}</p>
-                    <p className="text-xs text-gray-400 mt-4 pt-4 border-t border-gray-100">
-                      Информация носит справочный характер. Для точной диагностики обратитесь к врачу.
-                    </p>
-                  </div>
-                </motion.div>
-              )}
-            </motion.div>
-          )}
         </motion.div>
 
         {/* Features */}
