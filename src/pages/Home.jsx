@@ -98,7 +98,7 @@ export default function Home() {
                 Специалист
               </button>
               <button
-                onClick={() => setRole("patient")}
+                onClick={() => handleRoleChange("patient")}
                 className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${role === "patient" ? "bg-rose-500 text-white" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}`}
               >
                 Пациент
