@@ -14,6 +14,7 @@ export default function Layout({ children, currentPageName }) {
   }, []);
 
   const hideNav = !role || role === "patient";
+  const hideHeader = currentPageName === "PatientChat";
 
   return (
     <div className="min-h-screen bg-white font-sans">
