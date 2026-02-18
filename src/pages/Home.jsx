@@ -66,7 +66,7 @@ export default function Home() {
   return (
     <div className="relative min-h-[calc(100vh-4rem)] flex flex-col">
       {/* Role selection modal */}
-      {!role && <RoleModal onSelect={setRole} />}
+      {!role && <RoleModal onSelect={handleRoleChange} />}
 
       {/* Gradient background */}
       <div className="absolute inset-0 gradient-bg pointer-events-none" />
