@@ -140,7 +140,7 @@ export default function Home() {
                     className="flex-1 bg-transparent outline-none text-gray-800 placeholder:text-gray-400 text-base"
                   />
                   <input ref={fileInputRef} type="file" accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg" onChange={handleFileChange} className="hidden" />
-                  <button onClick={() => fileInputRef.current?.click()} className="ml-3 w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors" title="Прикрепить документ">
+                  <button id="tour-patient-attach" onClick={() => fileInputRef.current?.click()} className="ml-3 w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors" title="Прикрепить документ">
                     <Paperclip className="w-4 h-4 text-gray-600" />
                   </button>
                   <button onClick={handleAsk} disabled={loading} className="ml-2 w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors disabled:opacity-50">
