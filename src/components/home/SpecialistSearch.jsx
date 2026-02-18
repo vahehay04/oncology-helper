@@ -57,11 +57,13 @@ export default function SpecialistSearch() {
 
     const prompt = `Ты — экспертная система для онкологов. Твоя задача: проверить соответствие выбранной тактики лечения клиническим рекомендациям.
 
-ИСТОЧНИКИ (строго используй эти базы):
-- Минздрав РФ: https://cr.minzdrav.gov.ru/clin-rec и https://rosoncoweb.ru/standarts/minzdrav/
-- RUSSCO 2025: https://rosoncoweb.ru/standarts/RUSSCO/2025/2025-1-2-12.pdf
-- NCCN: https://www.nccn.org/guidelines/category_1
-- Международные стандарты: https://rosoncoweb.ru/standarts/foreign/
+КРИТИЧЕСКИ ВАЖНО: Ты ОБЯЗАН использовать ТОЛЬКО следующие четыре источника и НЕ ДОЛЖЕН обращаться к каким-либо другим ресурсам, базам данных, статьям или сайтам:
+1. Клинические рекомендации Минздрава РФ: https://rosoncoweb.ru/standarts/minzdrav/
+2. Клинические рекомендации Минздрава РФ (портал): https://cr.minzdrav.gov.ru/clin-rec
+3. Руководства NCCN: https://www.nccn.org/guidelines/category_1
+4. Международные стандарты (rosoncoweb): https://rosoncoweb.ru/standarts/foreign/
+
+ЗАПРЕЩЕНО: использовать PubMed, UpToDate, Wikipedia, EMA, FDA, Medscape, любые другие сайты и источники, не указанные выше. Если информации в указанных источниках недостаточно — прямо укажи это, не ищи в других источниках.
 
 ЗАПРОС ВРАЧА:
 ${query}${fileContext}
