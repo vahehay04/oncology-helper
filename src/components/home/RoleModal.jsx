@@ -30,7 +30,7 @@ export default function RoleModal({ onSelect }) {
 
           <div className="grid grid-cols-2 gap-4">
             <button
-              onClick={() => onSelect("specialist")}
+              onClick={() => handleSelect("specialist")}
               className="group flex flex-col items-center gap-3 p-6 rounded-2xl border-2 border-gray-100 hover:border-indigo-400 hover:bg-indigo-50/50 transition-all"
             >
               <div className="w-12 h-12 rounded-xl bg-indigo-100 group-hover:bg-indigo-200 flex items-center justify-center transition-colors">
