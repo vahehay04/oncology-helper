@@ -128,29 +128,29 @@ export default function CaseInfoForm({ data, onChange }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div className="space-y-2">
           <Label className="text-sm font-medium text-gray-700">Код МКБ-10</Label>
-          <Select value={data.mkb_code || ""} onValueChange={handleMkbSelect}>
-            <SelectTrigger className="rounded-xl border-gray-200">
-              <SelectValue placeholder="Выберите код МКБ-10" />
-            </SelectTrigger>
-            <SelectContent className="z-[200] max-h-60 overflow-y-auto">
-              {MKB_CODES.map(m => (
-                <SelectItem key={m.code} value={m.code}>{m.code} — {m.desc}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <select
+            value={data.mkb_code || ""}
+            onChange={(e) => handleMkbSelect(e.target.value)}
+            className="w-full h-9 rounded-xl border border-gray-200 bg-white px-3 py-1 text-sm text-gray-800 focus:outline-none focus:ring-1 focus:ring-indigo-400"
+          >
+            <option value="">Выберите код МКБ-10</option>
+            {MKB_CODES.map(m => (
+              <option key={m.code} value={m.code}>{m.code} — {m.desc}</option>
+            ))}
+          </select>
         </div>
         <div className="space-y-2">
           <Label className="text-sm font-medium text-gray-700">Гистологический тип</Label>
-          <Select value={data.histology || ""} onValueChange={(v) => update("histology", v)}>
-            <SelectTrigger className="rounded-xl border-gray-200">
-              <SelectValue placeholder="Выберите тип" />
-            </SelectTrigger>
-            <SelectContent>
-              {HISTOLOGY_TYPES.map(h => (
-                <SelectItem key={h} value={h}>{h}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <select
+            value={data.histology || ""}
+            onChange={(e) => update("histology", e.target.value)}
+            className="w-full h-9 rounded-xl border border-gray-200 bg-white px-3 py-1 text-sm text-gray-800 focus:outline-none focus:ring-1 focus:ring-indigo-400"
+          >
+            <option value="">Выберите тип</option>
+            {HISTOLOGY_TYPES.map(h => (
+              <option key={h} value={h}>{h}</option>
+            ))}
+          </select>
         </div>
       </div>
     </div>
