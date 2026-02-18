@@ -50,8 +50,13 @@ export default function Home() {
     setLoading(true);
     setAnswer("");
 
+    let fileContext = "";
+    if (uploadedFileUrl?.type === "text" && uploadedFileUrl.content) {
+      fileContext = `\n\nСОДЕРЖИМОЕ ДОКУМЕНТА:\n${uploadedFileUrl.content}`;
+    }
+
     const prompt = uploadedFileUrl
-      ? `Ты — AI-консультант по онкологии. Пользователь прикрепил документ. Проанализируй его и ответь на вопрос или сделай краткое резюме ключевых рекомендаций. Отвечай понятно. Напомни, что для точной диагностики нужно обратиться к врачу.\n\n${query ? `Вопрос: ${query}` : "Сделай краткое резюме документа."}`
+      ? `Ты — AI-консультант по онкологии. Пользователь прикрепил документ. Проанализируй его и ответь на вопрос или сделай краткое резюме ключевых рекомендаций. Отвечай понятно. Напомни, что для точной диагностики нужно обратиться к врачу.\n\n${query ? `Вопрос: ${query}` : "Сделай краткое резюме документа."}${fileContext}`
       : `Ты — AI-консультант по онкологии, который объясняет медицинские рекомендации понятно и просто для пациентов.
 
 ИСТОЧНИКИ:
@@ -66,7 +71,7 @@ export default function Home() {
     const res = await base44.integrations.Core.InvokeLLM({
       prompt,
       add_context_from_internet: !uploadedFileUrl,
-      ...(uploadedFileUrl && { file_urls: [uploadedFileUrl] }),
+      ...(uploadedFileUrl?.type === "image" && { file_urls: [uploadedFileUrl.url] }),
     });
     setAnswer(res);
     setLoading(false);
