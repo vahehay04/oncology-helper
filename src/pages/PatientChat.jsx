@@ -28,12 +28,8 @@ export default function PatientChatPage() {
         </Link>
       </header>
 
-      {/* Chat area */}
-      <div className="flex-1 flex flex-col max-w-2xl w-full mx-auto px-4 pb-4" style={{ minHeight: 0 }}>
-        <div className="flex-1 flex flex-col" style={{ minHeight: "60vh" }}>
-          <PatientChatComponent />
-        </div>
-      </div>
+      {/* Hero text — shown only before document is sent */}
+      <PatientChatComponent />
     </div>
   );
 }
