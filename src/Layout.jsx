@@ -49,7 +49,7 @@ export default function Layout({ children, currentPageName }) {
               Oncology Helper
             </span>
           </Link>
-          <nav className="flex items-center gap-6">
+          <nav className={`flex items-center gap-6 ${hideNav ? "hidden" : ""}`}>
             <Link
               to={createPageUrl("Home")}
               className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
