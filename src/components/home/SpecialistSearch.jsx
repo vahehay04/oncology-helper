@@ -42,6 +42,11 @@ export default function SpecialistSearch() {
     setLoading(true);
     setAnswer(null);
 
+    let fileContext = "";
+    if (uploadedFileUrl?.type === "text" && uploadedFileUrl.content) {
+      fileContext = `\n\nСОДЕРЖИМОЕ ПРИЛОЖЕННОГО ДОКУМЕНТА:\n${uploadedFileUrl.content}`;
+    }
+
     const prompt = `Ты — экспертная система для онкологов. Твоя задача: проверить соответствие выбранной тактики лечения клиническим рекомендациям.
 
 ИСТОЧНИКИ (строго используй эти базы):
@@ -51,7 +56,7 @@ export default function SpecialistSearch() {
 - Международные стандарты: https://rosoncoweb.ru/standarts/foreign/
 
 ЗАПРОС ВРАЧА:
-${query}
+${query}${fileContext}
 ${uploadedFileUrl ? "\n[К запросу приложен документ — учти его содержимое]" : ""}
 
 ЗАДАЧА:
