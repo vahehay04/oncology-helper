@@ -132,7 +132,7 @@ export default function CaseInfoForm({ data, onChange }) {
             <SelectTrigger className="rounded-xl border-gray-200">
               <SelectValue placeholder="Выберите код МКБ-10" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="z-[200] max-h-60 overflow-y-auto">
               {MKB_CODES.map(m => (
                 <SelectItem key={m.code} value={m.code}>{m.code} — {m.desc}</SelectItem>
               ))}
