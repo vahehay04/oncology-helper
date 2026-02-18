@@ -28,7 +28,6 @@ export default function PatientChatPage() {
         </Link>
       </header>
 
-      {/* Hero text — shown only before document is sent */}
       <PatientChatComponent />
     </div>
   );
