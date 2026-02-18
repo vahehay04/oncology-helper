@@ -16,7 +16,19 @@ export default function SpecialistSearch() {
     if (!file) return;
     setAttachedFile(file);
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    setUploadedFileUrl(file_url);
+    // For image files pass url directly; for docs extract text
+    const imageExts = [".png", ".jpg", ".jpeg"];
+    const isImage = imageExts.some(ext => file.name.toLowerCase().endsWith(ext));
+    if (isImage) {
+      setUploadedFileUrl({ type: "image", url: file_url });
+    } else {
+      const extracted = await base44.integrations.Core.ExtractDataFromUploadedFile({
+        file_url,
+        json_schema: { type: "object", properties: { text: { type: "string" } } },
+      });
+      const text = extracted?.output?.text || JSON.stringify(extracted?.output || "");
+      setUploadedFileUrl({ type: "text", content: text });
+    }
   };
 
   const removeFile = () => {
