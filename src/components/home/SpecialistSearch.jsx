@@ -114,7 +114,7 @@ ${uploadedFileUrl ? "\n[К запросу приложен документ — 
           sources: { type: "array", items: { type: "string" } },
         },
       },
-      ...(uploadedFileUrl && { file_urls: [uploadedFileUrl] }),
+      ...(uploadedFileUrl?.type === "image" && { file_urls: [uploadedFileUrl.url] }),
     });
 
     setAnswer(res);
