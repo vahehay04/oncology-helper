@@ -11,6 +11,12 @@ export default function Home() {
   const navigate = useNavigate();
   const [role, setRole] = useState(() => sessionStorage.getItem("userRole") || null);
 
+  React.useEffect(() => {
+    if (role === "patient") {
+      navigate(createPageUrl("PatientChat"), { replace: true });
+    }
+  }, []);
+
   const handleRoleChange = (newRole) => {
     sessionStorage.setItem("userRole", newRole);
     window.dispatchEvent(new Event("roleSelected"));
