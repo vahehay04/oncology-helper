@@ -113,17 +113,13 @@ export default function PatientChat() {
     addMessage({ role: "ai", type: "text", content: res });
   };
 
-  // Derived states
   const isReading = processing && messages.length === 1 && messages[0]?.type === "file";
   const showHero = messages.length === 0 && !processing;
 
   return (
     <div className="flex-1 flex flex-col max-w-2xl w-full mx-auto px-4 pb-4" style={{ minHeight: "calc(100vh - 80px)" }}>
-
-      {/* Messages area */}
       <div className="flex-1 overflow-y-auto py-6 flex flex-col">
 
-        {/* Hero — before any interaction */}
         <AnimatePresence>
           {showHero && (
             <motion.div
@@ -139,7 +135,6 @@ export default function PatientChat() {
           )}
         </AnimatePresence>
 
-        {/* Reading state — file uploaded, processing */}
         <AnimatePresence>
           {isReading && (
             <motion.div
@@ -154,7 +149,6 @@ export default function PatientChat() {
           )}
         </AnimatePresence>
 
-        {/* Chat messages */}
         <AnimatePresence>
           {messages.map((msg, i) => {
             if (msg.type === "file") {
@@ -172,13 +166,11 @@ export default function PatientChat() {
           })}
         </AnimatePresence>
 
-        {/* Indicator for subsequent processing (not initial file read) */}
         {processing && !isReading && <ReadingIndicator />}
 
         <div ref={bottomRef} />
       </div>
 
-      {/* Input area */}
       <div className="pt-2 pb-6">
         <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl px-5 py-3.5 shadow-sm">
           <input
