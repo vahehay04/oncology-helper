@@ -57,12 +57,14 @@ export default function Layout({ children, currentPageName }) {
               На главную
             </Link>
             <Link
+              id="tour-nav-cases"
               to={createPageUrl("CasesList")}
               className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
             >
               Мои случаи
             </Link>
             <Link
+              id="tour-nav-newcase"
               to={createPageUrl("NewCase")}
               className="text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-xl transition-colors"
             >
