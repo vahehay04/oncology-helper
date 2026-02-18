@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import mammoth from "mammoth";
 import { motion } from "framer-motion";
 import { Send, Paperclip, X, FileText, Sparkles, Loader2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
