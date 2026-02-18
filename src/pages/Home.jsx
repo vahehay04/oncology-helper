@@ -4,6 +4,7 @@ import { ArrowRight, Send, Sparkles, Shield, BookOpen, Paperclip, X, FileText } 
 import { Link } from "react-router-dom";
 import { createPageUrl } from "../utils";
 import { base44 } from "@/api/base44Client";
+import mammoth from "mammoth";
 import RoleModal from "@/components/home/RoleModal";
 import SpecialistSearch from "@/components/home/SpecialistSearch";
 import OnboardingTour from "@/components/onboarding/OnboardingTour";
