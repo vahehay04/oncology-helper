@@ -51,6 +51,7 @@ import Analysis from './pages/Analysis';
 import CasesList from './pages/CasesList';
 import Home from './pages/Home';
 import NewCase from './pages/NewCase';
+import PatientChat from './pages/PatientChat';
 import __Layout from './Layout.jsx';
 
 
@@ -59,6 +60,7 @@ export const PAGES = {
     "CasesList": CasesList,
     "Home": Home,
     "NewCase": NewCase,
+    "PatientChat": PatientChat,
 }
 
 export const pagesConfig = {
