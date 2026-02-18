@@ -26,7 +26,6 @@ export default function PatientChat() {
   const [input, setInput] = useState("");
   const [processing, setProcessing] = useState(false);
   const [documentContent, setDocumentContent] = useState(null);
-  const [documentName, setDocumentName] = useState(null);
   const fileInputRef = useRef(null);
   const bottomRef = useRef(null);
 
@@ -41,14 +40,9 @@ export default function PatientChat() {
     if (!file) return;
     e.target.value = "";
 
-    setDocumentName(file.name);
-
-    // Show file card as user message
     addMessage({ role: "user", type: "file", fileName: file.name });
-
     setProcessing(true);
 
-    // Extract text
     let content = "";
     if (file.name.toLowerCase().endsWith(".docx")) {
       const arrayBuffer = await file.arrayBuffer();
@@ -67,7 +61,6 @@ export default function PatientChat() {
     }
 
     setDocumentContent(content);
-
     setProcessing(false);
 
     addMessage({
@@ -90,10 +83,8 @@ export default function PatientChat() {
       ? [documentContent.replace("[image:", "").replace("]", "")]
       : undefined;
 
-    const prompt = `${btn.prompt}\n${SOURCES_PROMPT}${docCtx}`;
-
     const res = await base44.integrations.Core.InvokeLLM({
-      prompt,
+      prompt: `${btn.prompt}\n${SOURCES_PROMPT}${docCtx}`,
       add_context_from_internet: true,
       ...(file_urls && { file_urls }),
     });
@@ -113,10 +104,8 @@ export default function PatientChat() {
       ? `\n\nКОНТЕКСТ ДОКУМЕНТА:\n${documentContent}`
       : "";
 
-    const prompt = `Ты — AI-консультант по онкологии для пациентов.\n${SOURCES_PROMPT}\n\nВопрос пациента: ${text}${docCtx}`;
-
     const res = await base44.integrations.Core.InvokeLLM({
-      prompt,
+      prompt: `Ты — AI-консультант по онкологии для пациентов.\n${SOURCES_PROMPT}\n\nВопрос пациента: ${text}${docCtx}`,
       add_context_from_internet: true,
     });
 
@@ -124,50 +113,48 @@ export default function PatientChat() {
     addMessage({ role: "ai", type: "text", content: res });
   };
 
-  const isEmpty = messages.length === 0 && !processing;
+  // Derived states
   const isReading = processing && messages.length === 1 && messages[0]?.type === "file";
-  const showHero = !isReading && messages.length === 0;
+  const showHero = messages.length === 0 && !processing;
 
   return (
-    <div className="flex-1 flex flex-col max-w-2xl w-full mx-auto px-4 pb-4" style={{ minHeight: "80vh" }}>
-      {/* Hero text */}
-      <AnimatePresence>
-        {showHero && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="pt-12 pb-6 text-center"
-          >
-            <h1 className="text-5xl font-light text-gray-300 mb-3">Доктор рядом</h1>
-            <p className="text-gray-400 text-sm">AI-консультант, который объяснит медицинские рекомендации понятно и просто.</p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+    <div className="flex-1 flex flex-col max-w-2xl w-full mx-auto px-4 pb-4" style={{ minHeight: "calc(100vh - 80px)" }}>
 
-      {/* Reading state */}
-      <AnimatePresence>
-        {isReading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="flex-1 flex items-center justify-center"
-          >
-            <p className="text-gray-400 text-sm">Помощник читает Ваши рекомендации...</p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-    <div className="flex flex-col flex-1">
       {/* Messages area */}
-      <div className="flex-1 overflow-y-auto py-6">
-        {isEmpty && !showHero && (
-          <div className="flex items-center justify-center h-full">
-            <p className="text-gray-300 text-sm select-none">Загрузите документ или задайте вопрос</p>
-          </div>
-        )}
+      <div className="flex-1 overflow-y-auto py-6 flex flex-col">
 
+        {/* Hero — before any interaction */}
+        <AnimatePresence>
+          {showHero && (
+            <motion.div
+              key="hero"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="pt-12 pb-8 text-center"
+            >
+              <h1 className="text-5xl font-light text-gray-300 mb-3">Доктор рядом</h1>
+              <p className="text-gray-400 text-sm">AI-консультант, который объяснит медицинские рекомендации понятно и просто.</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Reading state — file uploaded, processing */}
+        <AnimatePresence>
+          {isReading && (
+            <motion.div
+              key="reading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex-1 flex items-center justify-center"
+            >
+              <p className="text-gray-400 text-sm">Помощник читает Ваши рекомендации...</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Chat messages */}
         <AnimatePresence>
           {messages.map((msg, i) => {
             if (msg.type === "file") {
@@ -185,13 +172,14 @@ export default function PatientChat() {
           })}
         </AnimatePresence>
 
-        {processing && <ReadingIndicator />}
+        {/* Indicator for subsequent processing (not initial file read) */}
+        {processing && !isReading && <ReadingIndicator />}
 
         <div ref={bottomRef} />
       </div>
 
       {/* Input area */}
-      <div className="px-6 pb-6 pt-2">
+      <div className="pt-2 pb-6">
         <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl px-5 py-3.5 shadow-sm">
           <input
             type="text"
