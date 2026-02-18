@@ -3,6 +3,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Stethoscope, User } from "lucide-react";
 
 export default function RoleModal({ onSelect }) {
+  const handleSelect = (role) => {
+    sessionStorage.setItem("userRole", role);
+    window.dispatchEvent(new Event("roleSelected"));
+    onSelect(role);
+  };
   return (
     <AnimatePresence>
       <motion.div
