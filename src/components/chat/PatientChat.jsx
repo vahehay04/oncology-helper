@@ -136,6 +136,12 @@ export default function PatientChat() {
           </div>
         )}
 
+        {processing && messages.length === 1 && messages[0]?.type === "file" && (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-gray-400 text-sm select-none">Помощник читает Ваши рекомендации...</p>
+          </div>
+        )}
+
         <AnimatePresence>
           {messages.map((msg, i) => {
             if (msg.type === "file") {
