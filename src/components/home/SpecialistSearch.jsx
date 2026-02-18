@@ -16,13 +16,20 @@ export default function SpecialistSearch() {
     const file = e.target.files[0];
     if (!file) return;
     setAttachedFile(file);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    // For image files pass url directly; for docs extract text
+
     const imageExts = [".png", ".jpg", ".jpeg"];
     const isImage = imageExts.some(ext => file.name.toLowerCase().endsWith(ext));
+
     if (isImage) {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
       setUploadedFileUrl({ type: "image", url: file_url });
+    } else if (file.name.toLowerCase().endsWith(".docx")) {
+      // Extract text from .docx using mammoth directly in browser
+      const arrayBuffer = await file.arrayBuffer();
+      const result = await mammoth.extractRawText({ arrayBuffer });
+      setUploadedFileUrl({ type: "text", content: result.value });
     } else {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
       const extracted = await base44.integrations.Core.ExtractDataFromUploadedFile({
         file_url,
         json_schema: { type: "object", properties: { text: { type: "string" } } },
