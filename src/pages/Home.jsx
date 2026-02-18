@@ -8,7 +8,13 @@ import RoleModal from "@/components/home/RoleModal";
 import SpecialistSearch from "@/components/home/SpecialistSearch";
 
 export default function Home() {
-  const [role, setRole] = useState(null); // null | "specialist" | "patient"
+  const [role, setRole] = useState(() => sessionStorage.getItem("userRole") || null);
+
+  const handleRoleChange = (newRole) => {
+    sessionStorage.setItem("userRole", newRole);
+    window.dispatchEvent(new Event("roleSelected"));
+    setRole(newRole);
+  };
   const [query, setQuery] = useState("");
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
