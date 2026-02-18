@@ -42,7 +42,7 @@ export default function RoleModal({ onSelect }) {
             </button>
 
             <button
-              onClick={() => onSelect("patient")}
+              onClick={() => handleSelect("patient")}
               className="group flex flex-col items-center gap-3 p-6 rounded-2xl border-2 border-gray-100 hover:border-rose-400 hover:bg-rose-50/50 transition-all"
             >
               <div className="w-12 h-12 rounded-xl bg-rose-100 group-hover:bg-rose-200 flex items-center justify-center transition-colors">
