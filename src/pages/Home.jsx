@@ -1,10 +1,8 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Send, Sparkles, Shield, BookOpen, Paperclip, X, FileText } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ArrowRight, Shield, BookOpen, Sparkles } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "../utils";
-import { base44 } from "@/api/base44Client";
-import mammoth from "mammoth";
 import RoleModal from "@/components/home/RoleModal";
 import SpecialistSearch from "@/components/home/SpecialistSearch";
 import OnboardingTour from "@/components/onboarding/OnboardingTour";
