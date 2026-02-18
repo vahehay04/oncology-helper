@@ -120,7 +120,7 @@ export default function Home() {
           {/* Patient mode */}
           {role === "patient" && (
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-2xl mx-auto">
-              <div className="glass-input rounded-2xl shadow-xl shadow-gray-200/30">
+              <div id="tour-patient-input" className="glass-input rounded-2xl shadow-xl shadow-gray-200/30">
                 {attachedFile && (
                   <div className="flex items-center gap-2 px-6 pt-4 pb-2">
                     <div className="flex items-center gap-2 bg-rose-50 text-rose-700 rounded-lg px-3 py-1.5 text-sm">
