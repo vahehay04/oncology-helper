@@ -8,71 +8,16 @@ import SpecialistSearch from "@/components/home/SpecialistSearch";
 import OnboardingTour from "@/components/onboarding/OnboardingTour";
 
 export default function Home() {
+  const navigate = useNavigate();
   const [role, setRole] = useState(() => sessionStorage.getItem("userRole") || null);
 
   const handleRoleChange = (newRole) => {
     sessionStorage.setItem("userRole", newRole);
     window.dispatchEvent(new Event("roleSelected"));
     setRole(newRole);
-  };
-  const [query, setQuery] = useState("");
-  const [answer, setAnswer] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [attachedFile, setAttachedFile] = useState(null);
-  const [uploadedFileUrl, setUploadedFileUrl] = useState(null);
-  const fileInputRef = useRef(null);
-
-  const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setAttachedFile(file);
-
-    if (file.name.toLowerCase().endsWith(".docx")) {
-      const arrayBuffer = await file.arrayBuffer();
-      const result = await mammoth.extractRawText({ arrayBuffer });
-      setUploadedFileUrl({ type: "text", content: result.value });
-    } else {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      setUploadedFileUrl({ type: "image", url: file_url });
+    if (newRole === "patient") {
+      navigate(createPageUrl("PatientChat"));
     }
-  };
-
-  const removeFile = () => {
-    setAttachedFile(null);
-    setUploadedFileUrl(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
-
-  const handleAsk = async () => {
-    if (!query.trim() && !attachedFile) return;
-    setLoading(true);
-    setAnswer("");
-
-    let fileContext = "";
-    if (uploadedFileUrl?.type === "text" && uploadedFileUrl.content) {
-      fileContext = `\n\nСОДЕРЖИМОЕ ДОКУМЕНТА:\n${uploadedFileUrl.content}`;
-    }
-
-    const prompt = uploadedFileUrl
-      ? `Ты — AI-консультант по онкологии. Пользователь прикрепил документ. Проанализируй его и ответь на вопрос или сделай краткое резюме ключевых рекомендаций. Отвечай понятно. Напомни, что для точной диагностики нужно обратиться к врачу.\n\n${query ? `Вопрос: ${query}` : "Сделай краткое резюме документа."}${fileContext}`
-      : `Ты — AI-консультант по онкологии, который объясняет медицинские рекомендации понятно и просто для пациентов.
-
-ИСТОЧНИКИ:
-1. Клинические рекомендации Минздрава РФ — https://cr.minzdrav.gov.ru/preview-cr/921_1
-2. Рекомендации RUSSCO 2025 — https://rosoncoweb.ru/standarts/RUSSCO/2025/2025-1-2-12.pdf
-3. ESMO Clinical Practice Guideline — https://melnet.org.nz/new-blog/cutaneous-melanoma-esmo-clinical-practice-guideline-for-diagnosis-treatment-and-follow-up
-
-Ответь на вопрос пациента доступно и точно. Не указывай ссылки в ответе. Напомни про врача.
-
-Вопрос: ${query}`;
-
-    const res = await base44.integrations.Core.InvokeLLM({
-      prompt,
-      add_context_from_internet: !uploadedFileUrl,
-      ...(uploadedFileUrl?.type === "image" && { file_urls: [uploadedFileUrl.url] }),
-    });
-    setAnswer(res);
-    setLoading(false);
   };
 
   return (
