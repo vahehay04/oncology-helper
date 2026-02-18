@@ -125,20 +125,46 @@ export default function PatientChat() {
   };
 
   const isEmpty = messages.length === 0 && !processing;
+  const isReading = processing && messages.length === 1 && messages[0]?.type === "file";
+  const showHero = !isReading && messages.length === 0;
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex-1 flex flex-col max-w-2xl w-full mx-auto px-4 pb-4" style={{ minHeight: "80vh" }}>
+      {/* Hero text */}
+      <AnimatePresence>
+        {showHero && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="pt-12 pb-6 text-center"
+          >
+            <h1 className="text-5xl font-light text-gray-300 mb-3">Доктор рядом</h1>
+            <p className="text-gray-400 text-sm">AI-консультант, который объяснит медицинские рекомендации понятно и просто.</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Reading state */}
+      <AnimatePresence>
+        {isReading && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="flex-1 flex items-center justify-center"
+          >
+            <p className="text-gray-400 text-sm">Помощник читает Ваши рекомендации...</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+    <div className="flex flex-col flex-1">
       {/* Messages area */}
-      <div className="flex-1 overflow-y-auto px-6 py-6">
-        {isEmpty && (
+      <div className="flex-1 overflow-y-auto py-6">
+        {isEmpty && !showHero && (
           <div className="flex items-center justify-center h-full">
             <p className="text-gray-300 text-sm select-none">Загрузите документ или задайте вопрос</p>
-          </div>
-        )}
-
-        {processing && messages.length === 1 && messages[0]?.type === "file" && (
-          <div className="flex items-center justify-center h-full">
-            <p className="text-gray-400 text-sm select-none">Помощник читает Ваши рекомендации...</p>
           </div>
         )}
 
