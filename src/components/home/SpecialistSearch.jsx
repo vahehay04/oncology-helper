@@ -155,7 +155,7 @@ ${uploadedFileUrl ? "\n[К запросу приложен документ — 
             className="flex-1 bg-transparent outline-none text-gray-800 placeholder:text-gray-400 text-sm resize-none min-h-[80px]"
           />
           <div className="flex flex-col gap-2 flex-shrink-0">
-            <input ref={fileInputRef} type="file" accept=".pdf,.txt,.png,.jpg,.jpeg" onChange={handleFileChange} className="hidden" />
+            <input ref={fileInputRef} type="file" accept=".pdf,.txt,.docx,.png,.jpg,.jpeg" onChange={handleFileChange} className="hidden" />
             <button onClick={() => fileInputRef.current?.click()} className="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors" title="Прикрепить документ">
               <Paperclip className="w-4 h-4 text-gray-600" />
             </button>
