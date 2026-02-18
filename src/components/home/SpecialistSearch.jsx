@@ -139,7 +139,7 @@ ${uploadedFileUrl ? "\n[К запросу приложен документ — 
 
   return (
     <div className="w-full max-w-3xl mx-auto">
-      <div className="mb-3 text-left">
+      <div id="tour-specialist-input" className="mb-3 text-left">
         <p className="text-sm text-gray-500">
           Введите данные пациента: диагноз, молекулярно-генетические результаты, линию терапии
         </p>
