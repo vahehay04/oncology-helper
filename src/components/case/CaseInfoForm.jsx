@@ -57,8 +57,7 @@ export default function CaseInfoForm({ data, onChange }) {
 
   const handleMkbSelect = (code) => {
     const mkb = MKB_CODES.find(m => m.code === code);
-    update("mkb_code", code);
-    if (mkb) update("mkb_description", mkb.desc);
+    onChange({ ...data, mkb_code: code, mkb_description: mkb ? mkb.desc : "" });
   };
 
   return (
