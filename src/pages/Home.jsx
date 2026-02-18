@@ -28,8 +28,15 @@ export default function Home() {
     const file = e.target.files[0];
     if (!file) return;
     setAttachedFile(file);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    setUploadedFileUrl(file_url);
+
+    if (file.name.toLowerCase().endsWith(".docx")) {
+      const arrayBuffer = await file.arrayBuffer();
+      const result = await mammoth.extractRawText({ arrayBuffer });
+      setUploadedFileUrl({ type: "text", content: result.value });
+    } else {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setUploadedFileUrl({ type: "image", url: file_url });
+    }
   };
 
   const removeFile = () => {
