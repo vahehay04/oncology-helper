@@ -6,6 +6,7 @@ import { createPageUrl } from "../utils";
 import { base44 } from "@/api/base44Client";
 import RoleModal from "@/components/home/RoleModal";
 import SpecialistSearch from "@/components/home/SpecialistSearch";
+import OnboardingTour from "@/components/onboarding/OnboardingTour";
 
 export default function Home() {
   const [role, setRole] = useState(() => sessionStorage.getItem("userRole") || null);
