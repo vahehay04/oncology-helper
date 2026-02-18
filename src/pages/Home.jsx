@@ -91,7 +91,7 @@ export default function Home() {
 
           {/* Role switch */}
           {role && (
-            <div className="flex items-center justify-center gap-2 mb-8">
+            <div id="tour-role-switch" className="flex items-center justify-center gap-2 mb-8">
               <button
                 onClick={() => handleRoleChange("specialist")}
                 className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${role === "specialist" ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}`}
