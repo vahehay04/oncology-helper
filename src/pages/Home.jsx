@@ -92,7 +92,7 @@ export default function Home() {
           {role && (
             <div className="flex items-center justify-center gap-2 mb-8">
               <button
-                onClick={() => setRole("specialist")}
+                onClick={() => handleRoleChange("specialist")}
                 className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${role === "specialist" ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}`}
               >
                 Специалист
