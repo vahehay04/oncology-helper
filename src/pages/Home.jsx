@@ -114,6 +114,9 @@ export default function Home() {
             </motion.div>
           )}
 
+          {/* Onboarding tour */}
+          {role && <OnboardingTour role={role} />}
+
           {/* Patient mode */}
           {role === "patient" && (
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-2xl mx-auto">
