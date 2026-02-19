@@ -339,7 +339,7 @@ ${codesList}
             type="button"
             variant="ghost"
             size="sm"
-            onClick={handleAiMkbSuggest}
+            onClick={() => { setClarifications({}); handleAiMkbSuggest({}); }}
             disabled={mkbLoading || !diagnoses.some(d => d.text)}
             className="text-xs text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg h-7 px-3 gap-1.5"
           >
