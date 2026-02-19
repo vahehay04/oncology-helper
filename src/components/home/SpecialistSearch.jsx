@@ -3,6 +3,7 @@ import mammoth from "mammoth";
 import { motion } from "framer-motion";
 import { Send, Paperclip, X, FileText, Sparkles, Loader2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import { SPECIALIST_SYSTEM_PROMPT } from "@/components/lib/sourcePrompt";
 
 export default function SpecialistSearch() {
   const [query, setQuery] = useState("");
