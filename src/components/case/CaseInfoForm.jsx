@@ -447,6 +447,15 @@ ${codesList}
         )}
       </div>
 
+      {/* Oncology-specific fields */}
+      {detectedOncology && (
+        <OncologySpecificFields
+          oncologyType={detectedOncology}
+          data={data}
+          onChange={onChange}
+        />
+      )}
+
       {/* Histology */}
       <div className="space-y-2">
         <Label className="text-sm font-medium text-gray-700">Гистологический тип</Label>
