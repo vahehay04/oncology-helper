@@ -57,6 +57,22 @@ export default function Home() {
             AI-консультант, который объяснит медицинские рекомендации понятно и просто.
           </p>
 
+          {/* Role switcher */}
+          <div className="flex items-center justify-center gap-2 mb-8">
+            <button
+              onClick={() => handleRoleChange("specialist")}
+              className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${role === "specialist" ? "bg-indigo-600 text-white shadow-md" : "bg-white/60 text-gray-500 hover:bg-white border border-gray-200"}`}
+            >
+              Специалист
+            </button>
+            <button
+              onClick={() => handleRoleChange("patient")}
+              className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${role === "patient" ? "bg-rose-500 text-white shadow-md" : "bg-white/60 text-gray-500 hover:bg-white border border-gray-200"}`}
+            >
+              Пациент
+            </button>
+          </div>
+
           {/* Two main cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto mb-12">
             <motion.div
