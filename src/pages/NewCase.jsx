@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "../utils";
 import CaseInfoForm from "@/components/case/CaseInfoForm";
 import DiagnosticsAndTreatmentForm from "@/components/case/DiagnosticsAndTreatmentForm";
+import GuidelinePanel from "@/components/cases/GuidelinePanel";
 
 const STEPS = [
   { key: "info", label: "Данные случая", icon: ClipboardList },
