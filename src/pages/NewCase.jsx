@@ -107,8 +107,7 @@ export default function NewCase() {
         <div className="flex items-center justify-between mt-8">
           <Button
             variant="ghost"
-            onClick={() => setStep(Math.max(0, step - 1))}
-            disabled={step === 0}
+            onClick={() => step === 0 ? navigate(createPageUrl("Home")) : setStep(step - 1)}
             className="text-gray-500 rounded-xl"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
