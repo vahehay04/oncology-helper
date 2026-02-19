@@ -33,6 +33,7 @@ export default function NewCase() {
       mkb_code: caseInfoData.mkb_code,
       mkb_description: caseInfoData.mkb_description,
       histology: caseInfoData.histology,
+      oncology_specific_fields: caseInfoData.oncology_specific_fields || {},
       diagnostics_performed: diagnostics,
       treatment_performed: treatments,
       status: "на_анализе",
