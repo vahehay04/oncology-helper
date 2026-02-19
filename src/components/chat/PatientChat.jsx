@@ -76,7 +76,7 @@ export default function PatientChat() {
       : undefined;
 
     const res = await base44.integrations.Core.InvokeLLM({
-      prompt: `${btn.prompt}\n${SOURCES_PROMPT}${docCtx}`,
+      prompt: `${PATIENT_SYSTEM_PROMPT}\n\nЗАПРОС: ${btn.prompt}${docCtx}`,
       add_context_from_internet: true,
       ...(file_urls && { file_urls }),
     });
