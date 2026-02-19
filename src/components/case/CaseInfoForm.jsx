@@ -368,16 +368,33 @@ ${codesList}
               </button>
             </div>
             {mkbSuggestion.needs_clarification && mkbSuggestion.missing_params?.length > 0 && (
-              <div className="bg-amber-100 rounded-lg p-2.5">
-                <p className="text-xs font-semibold text-amber-800 mb-1.5">Для точного сопоставления с клиническими рекомендациями требуется уточнить:</p>
-                <ul className="space-y-0.5">
+              <div className="bg-amber-100 rounded-lg p-2.5 space-y-2">
+                <p className="text-xs font-semibold text-amber-800">Для точного определения кода по документу МКБ-10 (rosoncoweb.ru) уточните:</p>
+                <div className="space-y-2">
                   {mkbSuggestion.missing_params.map((p, i) => (
-                    <li key={i} className="text-xs text-amber-700 flex items-start gap-1.5">
-                      <span className="mt-0.5 w-1 h-1 rounded-full bg-amber-500 flex-shrink-0" />
-                      {p}
-                    </li>
+                    <div key={i} className="space-y-1">
+                      <label className="text-xs text-amber-800 font-medium flex items-center gap-1.5">
+                        <span className="w-1 h-1 rounded-full bg-amber-500 flex-shrink-0 inline-block mt-0.5" />
+                        {p}
+                      </label>
+                      <input
+                        type="text"
+                        value={clarifications[p] || ""}
+                        onChange={(e) => handleClarificationChange(p, e.target.value)}
+                        placeholder="Введите уточнение..."
+                        className="w-full text-xs rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-amber-400"
+                      />
+                    </div>
                   ))}
-                </ul>
+                </div>
+                <button
+                  onClick={handleClarificationSubmit}
+                  disabled={mkbLoading || !mkbSuggestion.missing_params.some(p => clarifications[p]?.trim())}
+                  className="w-full flex items-center justify-center gap-1.5 text-xs font-medium text-white bg-amber-500 hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed px-3 py-1.5 rounded-lg transition-colors"
+                >
+                  {mkbLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+                  Уточнить и подобрать код
+                </button>
               </div>
             )}
           </div>
