@@ -8,6 +8,7 @@ import { Plus, FileText, CheckCircle2, Clock, Sparkles, Loader2, ArrowRight } fr
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import GuidelinePanel from "@/components/cases/GuidelinePanel";
 
 const STATUS_MAP = {
   "черновик": { label: "Черновик", color: "bg-gray-100 text-gray-600", icon: FileText },
