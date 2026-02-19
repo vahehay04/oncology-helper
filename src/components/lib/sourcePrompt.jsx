@@ -110,25 +110,138 @@ ${SOURCE_VALIDATION_PROMPT}
 `;
 
 /**
+ * Карта клинических рекомендаций Минздрава РФ с rosoncoweb.ru
+ * Источник: https://rosoncoweb.ru/standarts/minzdrav/
+ */
+export const MINZDRAV_GUIDELINES_MAP = [
+  { title: "Рак пищевода и кардии", url: "https://cr.minzdrav.gov.ru/preview-cr/237_6", mkb: ["C15", "C16.0"], year: 2024 },
+  { title: "Опухоли невыявленной первичной локализации", url: "https://cr.minzdrav.gov.ru/preview-cr/893_1", mkb: ["C76", "C77", "C78", "C79", "C80"], year: 2024 },
+  { title: "Рак поджелудочной железы", url: "https://cr.minzdrav.gov.ru/preview-cr/355_5", mkb: ["C25", "D37.7"], year: 2024 },
+  { title: "Рак предстательной железы", url: "https://cr.minzdrav.gov.ru/preview-cr/12_3", mkb: ["C61"], year: 2021 },
+  { title: "Рак тела матки и саркомы матки", url: "https://cr.minzdrav.gov.ru/preview-cr/460_4", mkb: ["C54", "C55", "D07.0"], year: 2024 },
+  { title: "Рак паренхимы почки", url: "https://cr.minzdrav.gov.ru/preview-cr/10_5", mkb: ["C64", "D41.0"], year: 2025 },
+  { title: "Злокачественное новообразование бронхов и легкого", url: "https://cr.minzdrav.gov.ru/preview-cr/30_5", mkb: ["C34"], year: 2025 },
+  { title: "Рак молочной железы", url: "https://cr.minzdrav.gov.ru/preview-cr/379_4", mkb: ["C50", "D05"], year: 2021 },
+  { title: "Забрюшинные неорганные саркомы", url: "https://cr.minzdrav.gov.ru/preview-cr/618_3", mkb: ["C48.0", "C48.8"], year: 2024 },
+  { title: "Саркомы костей", url: "https://cr.minzdrav.gov.ru/preview-cr/532_5", mkb: ["C40", "C41", "D48.0"], year: 2025 },
+  { title: "Плоскоклеточный рак кожи", url: "https://cr.minzdrav.gov.ru/preview-cr/476_3", mkb: ["C44", "D04"], year: 2024 },
+  { title: "Вторичное злокачественное новообразование головного мозга", url: "https://cr.minzdrav.gov.ru/preview-cr/534_3", mkb: ["C79.3"], year: 2024 },
+  { title: "Базальноклеточный рак кожи", url: "https://cr.minzdrav.gov.ru/preview-cr/467_3", mkb: ["C44"], year: 2024 },
+  { title: "Рак уретры", url: "https://cr.minzdrav.gov.ru/preview-cr/450_3", mkb: ["C68.0"], year: 2023 },
+  { title: "Пограничные опухоли яичников", url: "https://cr.minzdrav.gov.ru/preview-cr/346_2", mkb: ["C56", "D39.1"], year: 2024 },
+  { title: "Медуллярный рак щитовидной железы", url: "https://cr.minzdrav.gov.ru/preview-cr/332_2", mkb: ["C73"], year: 2024 },
+  { title: "Дифференцированный рак щитовидной железы", url: "https://cr.minzdrav.gov.ru/preview-cr/329_2", mkb: ["C73", "D44.0"], year: 2024 },
+  { title: "Злокачественные новообразования полости рта", url: "https://cr.minzdrav.gov.ru/preview-cr/164_2", mkb: ["C02", "C03", "C04", "C05", "C06"], year: 2024 },
+  { title: "Нейроэндокринные опухоли", url: "https://cr.minzdrav.gov.ru/preview-cr/610_2", mkb: ["C10", "C11", "C14", "C15", "C16", "C17", "C18", "C25", "C34", "C37", "C74.1"], year: 2025 },
+  { title: "Рак ротоглотки", url: "https://cr.minzdrav.gov.ru/preview-cr/4_2", mkb: ["C01", "C09", "C10", "D37.0"], year: 2024 },
+  { title: "Рак гортаноглотки", url: "https://cr.minzdrav.gov.ru/preview-cr/27_2", mkb: ["C12", "C13"], year: 2024 },
+  { title: "Рак полости носа и придаточных пазух", url: "https://cr.minzdrav.gov.ru/preview-cr/3_2", mkb: ["C30", "C31"], year: 2024 },
+  { title: "Герминогенные опухоли у мужчин", url: "https://cr.minzdrav.gov.ru/preview-cr/584_2", mkb: ["C62", "C38.1", "C48.0"], year: 2024 },
+  { title: "Злокачественные новообразования губы", url: "https://cr.minzdrav.gov.ru/preview-cr/553_2", mkb: ["C00"], year: 2024 },
+  { title: "Первичные опухоли центральной нервной системы", url: "https://cr.minzdrav.gov.ru/preview-cr/585_2", mkb: ["C70", "C71", "C72", "D32", "D33", "D42", "D43"], year: 2025 },
+  { title: "Гастроинтестинальные стромальные опухоли (ГИСО)", url: "https://cr.minzdrav.gov.ru/preview-cr/551_3", mkb: ["C15", "C16", "C17", "C18", "C48"], year: 2024 },
+  { title: "Рак трахеи", url: "https://cr.minzdrav.gov.ru/preview-cr/330_2", mkb: ["C33"], year: 2024 },
+  { title: "Уротелиальный рак верхних мочевыводящих путей", url: "https://cr.minzdrav.gov.ru/preview-cr/526_2", mkb: ["C65", "C66"], year: 2023 },
+  { title: "Злокачественные новообразования влагалища", url: "https://cr.minzdrav.gov.ru/preview-cr/344_2", mkb: ["C52", "D07.2"], year: 2024 },
+  { title: "Рак коры надпочечника (адренокортикальный рак)", url: "https://cr.minzdrav.gov.ru/preview-cr/341_2", mkb: ["C74"], year: 2025 },
+  { title: "Рак яичников / рак маточной трубы / первичный рак брюшины", url: "https://cr.minzdrav.gov.ru/preview-cr/547_3", mkb: ["C48", "C56", "C57", "D39.1"], year: 2024 },
+  { title: "Меланома кожи и слизистых оболочек", url: "https://cr.minzdrav.gov.ru/preview-cr/921_1", mkb: ["C43", "C51", "C52", "C53", "D03"], year: 2025 },
+  { title: "Неэпителиальные опухоли яичников", url: "https://cr.minzdrav.gov.ru/preview-cr/541_2", mkb: ["C56"], year: 2024 },
+  { title: "Рак шейки матки", url: "https://cr.minzdrav.gov.ru/preview-cr/537_3", mkb: ["C53", "D06"], year: 2024 },
+  { title: "Рак носоглотки", url: "https://cr.minzdrav.gov.ru/preview-cr/535_2", mkb: ["C11"], year: 2024 },
+  { title: "Рак гортани", url: "https://cr.minzdrav.gov.ru/preview-cr/475_3", mkb: ["C32", "D38.0"], year: 2024 },
+  { title: "Карцинома Меркеля", url: "https://cr.minzdrav.gov.ru/preview-cr/297_2", mkb: ["C44"], year: 2024 },
+  { title: "Рак желудка", url: "https://cr.minzdrav.gov.ru/preview-cr/574_1", mkb: ["C16"], year: 2020 },
+  { title: "Рак печени (гепатоцеллюлярный)", url: "https://cr.minzdrav.gov.ru/preview-cr/1_4", mkb: ["C22.0", "D37.6"], year: 2025 },
+  { title: "Плоскоклеточный рак анального канала", url: "https://cr.minzdrav.gov.ru/preview-cr/555_3", mkb: ["C21", "C44.5"], year: 2025 },
+  { title: "Рак прямой кишки", url: "https://cr.minzdrav.gov.ru/preview-cr/554_4", mkb: ["C20", "D01.2", "D37.5"], year: 2025 },
+  { title: "Рак полового члена", url: "https://cr.minzdrav.gov.ru/preview-cr/51_2", mkb: ["C60", "D40.7"], year: 2024 },
+  { title: "Саркомы мягких тканей", url: "https://cr.minzdrav.gov.ru/preview-cr/515_3", mkb: ["C49"], year: 2025 },
+  { title: "Рак мочевого пузыря", url: "https://cr.minzdrav.gov.ru/preview-cr/9_4", mkb: ["C67", "D09.0", "D41.4"], year: 2024 },
+  { title: "Рак ободочной кишки", url: "https://cr.minzdrav.gov.ru/preview-cr/556_4", mkb: ["C18", "D01.0", "D37.4"], year: 2025 },
+  { title: "Рак желчного пузыря и желчевыводящих путей", url: "https://cr.minzdrav.gov.ru/preview-cr/358_4", mkb: ["C22.1", "C23", "C24"], year: 2024 },
+  { title: "Рак вульвы", url: "https://cr.minzdrav.gov.ru/preview-cr/343_2", mkb: ["C51", "D07.1"], year: 2024 },
+  { title: "Лимфома Ходжкина", url: "https://cr.minzdrav.gov.ru/preview-cr/543_3", mkb: ["C81"], year: 2024 },
+  { title: "Диффузная В-крупноклеточная лимфома", url: "https://cr.minzdrav.gov.ru/preview-cr/539_3", mkb: ["C83.3"], year: 2024 },
+  { title: "Множественная миелома", url: "https://cr.minzdrav.gov.ru/preview-cr/538_4", mkb: ["C90"], year: 2024 },
+  { title: "Острый миелоидный лейкоз", url: "https://cr.minzdrav.gov.ru/preview-cr/160_3", mkb: ["C92"], year: 2024 },
+  { title: "Хронический лимфоцитарный лейкоз", url: "https://cr.minzdrav.gov.ru/preview-cr/542_3", mkb: ["C91.1"], year: 2024 },
+  { title: "Рак пищевода (плоскоклеточный)", url: "https://cr.minzdrav.gov.ru/preview-cr/31_4", mkb: ["C15"], year: 2024 },
+];
+
+/**
  * Промпт для МКБ-10 кодирования
  */
 export const MKB_SYSTEM_PROMPT = `Ты — система нормативного кодирования МКБ-10 для врача-онколога.
 
 ${SOURCE_VALIDATION_PROMPT}
 
-## ИСТОЧНИКИ ДЛЯ МКБ-10:
+## ИСТОЧНИКИ ДЛЯ МКБ-10 — ТОЛЬКО ЭТИ:
 
-Использовать ТОЛЬКО:
-- https://rosoncoweb.ru/standarts/minzdrav/
-- https://cr.minzdrav.gov.ru/clin-rec
+Источник 1: https://rosoncoweb.ru/standarts/minzdrav/ (индекс клин. рекомендаций Минздрава РФ)
+Источник 2: https://cr.minzdrav.gov.ru — прямые ссылки на документы
 
-ЗАПРЕЩЕНО: old.oncology-association.ru, 24radiology.ru и любые другие домены вне списка.
+ЗАПРЕЩЕНО: old.oncology-association.ru, 24radiology.ru, Wikipedia, UpToDate, PubMed и любые другие домены.
 
-## ПРАВИЛА ВЫБОРА КОДА:
+## СПИСОК АКТУАЛЬНЫХ КЛИНИЧЕСКИХ РЕКОМЕНДАЦИЙ МИНЗДРАВА РФ (с rosoncoweb.ru):
 
-1. Выбирай ТОЛЬКО из предоставленного списка кодов.
-2. Обоснование пиши со ссылкой ИСКЛЮЧИТЕЛЬНО на rosoncoweb.ru или cr.minzdrav.gov.ru.
-3. Если нужного кода нет в разрешённых источниках — выбери ближайший родительский код и укажи это явно.
+Ниже — актуальный список документов с точными URL и кодами МКБ-10.
+Используй ТОЛЬКО эти документы для обоснования кода:
+
+- Рак пищевода и кардии → МКБ: C15, C16.0 → https://cr.minzdrav.gov.ru/preview-cr/237_6 (2024)
+- Опухоли невыявленной первичной локализации → МКБ: C76-C80 → https://cr.minzdrav.gov.ru/preview-cr/893_1 (2024)
+- Рак поджелудочной железы → МКБ: C25 → https://cr.minzdrav.gov.ru/preview-cr/355_5 (2024)
+- Рак предстательной железы → МКБ: C61 → https://cr.minzdrav.gov.ru/preview-cr/12_3 (2021)
+- Рак тела матки и саркомы матки → МКБ: C54, C55 → https://cr.minzdrav.gov.ru/preview-cr/460_4 (2024)
+- Рак паренхимы почки → МКБ: C64 → https://cr.minzdrav.gov.ru/preview-cr/10_5 (2025)
+- ЗНО бронхов и легкого → МКБ: C34 → https://cr.minzdrav.gov.ru/preview-cr/30_5 (2025)
+- Рак молочной железы → МКБ: C50, D05 → https://cr.minzdrav.gov.ru/preview-cr/379_4 (2021)
+- Забрюшинные саркомы → МКБ: C48.0, C48.8 → https://cr.minzdrav.gov.ru/preview-cr/618_3 (2024)
+- Саркомы костей → МКБ: C40, C41 → https://cr.minzdrav.gov.ru/preview-cr/532_5 (2025)
+- Плоскоклеточный рак кожи → МКБ: C44, D04 → https://cr.minzdrav.gov.ru/preview-cr/476_3 (2024)
+- Базальноклеточный рак кожи → МКБ: C44 → https://cr.minzdrav.gov.ru/preview-cr/467_3 (2024)
+- Рак уретры → МКБ: C68.0 → https://cr.minzdrav.gov.ru/preview-cr/450_3 (2023)
+- Рак щитовидной железы (медуллярный) → МКБ: C73 → https://cr.minzdrav.gov.ru/preview-cr/332_2 (2024)
+- Рак щитовидной железы (дифференцированный) → МКБ: C73, D44.0 → https://cr.minzdrav.gov.ru/preview-cr/329_2 (2024)
+- ЗНО полости рта → МКБ: C02-C06 → https://cr.minzdrav.gov.ru/preview-cr/164_2 (2024)
+- Нейроэндокринные опухоли → МКБ: C10-C25, C34, C74.1 → https://cr.minzdrav.gov.ru/preview-cr/610_2 (2025)
+- Рак ротоглотки → МКБ: C01, C09, C10 → https://cr.minzdrav.gov.ru/preview-cr/4_2 (2024)
+- Рак гортаноглотки → МКБ: C12, C13 → https://cr.minzdrav.gov.ru/preview-cr/27_2 (2024)
+- Рак полости носа и придаточных пазух → МКБ: C30, C31 → https://cr.minzdrav.gov.ru/preview-cr/3_2 (2024)
+- Герминогенные опухоли у мужчин → МКБ: C62 → https://cr.minzdrav.gov.ru/preview-cr/584_2 (2024)
+- ЗНО губы → МКБ: C00 → https://cr.minzdrav.gov.ru/preview-cr/553_2 (2024)
+- Первичные опухоли ЦНС → МКБ: C70-C72, D32-D43 → https://cr.minzdrav.gov.ru/preview-cr/585_2 (2025)
+- ГИСО → МКБ: C15-C18, C48 → https://cr.minzdrav.gov.ru/preview-cr/551_3 (2024)
+- Рак трахеи → МКБ: C33 → https://cr.minzdrav.gov.ru/preview-cr/330_2 (2024)
+- Рак верхних мочевыводящих путей → МКБ: C65, C66 → https://cr.minzdrav.gov.ru/preview-cr/526_2 (2023)
+- Рак яичников / маточной трубы / брюшины → МКБ: C48, C56, C57 → https://cr.minzdrav.gov.ru/preview-cr/547_3 (2024)
+- Меланома кожи и слизистых оболочек → МКБ: C43, C51-C53, D03 → https://cr.minzdrav.gov.ru/preview-cr/921_1 (2025)
+- Рак шейки матки → МКБ: C53, D06 → https://cr.minzdrav.gov.ru/preview-cr/537_3 (2024)
+- Рак носоглотки → МКБ: C11 → https://cr.minzdrav.gov.ru/preview-cr/535_2 (2024)
+- Рак гортани → МКБ: C32, D38.0 → https://cr.minzdrav.gov.ru/preview-cr/475_3 (2024)
+- Карцинома Меркеля → МКБ: C44 → https://cr.minzdrav.gov.ru/preview-cr/297_2 (2024)
+- Рак желудка → МКБ: C16 → https://cr.minzdrav.gov.ru/preview-cr/574_1 (2020)
+- Рак печени (гепатоцеллюлярный) → МКБ: C22.0 → https://cr.minzdrav.gov.ru/preview-cr/1_4 (2025)
+- Рак анального канала → МКБ: C21 → https://cr.minzdrav.gov.ru/preview-cr/555_3 (2025)
+- Рак прямой кишки → МКБ: C20 → https://cr.minzdrav.gov.ru/preview-cr/554_4 (2025)
+- Рак полового члена → МКБ: C60 → https://cr.minzdrav.gov.ru/preview-cr/51_2 (2024)
+- Саркомы мягких тканей → МКБ: C49 → https://cr.minzdrav.gov.ru/preview-cr/515_3 (2025)
+- Рак мочевого пузыря → МКБ: C67 → https://cr.minzdrav.gov.ru/preview-cr/9_4 (2024)
+- Рак ободочной кишки → МКБ: C18 → https://cr.minzdrav.gov.ru/preview-cr/556_4 (2025)
+- Рак желчного пузыря и желчевыводящих путей → МКБ: C22.1, C23, C24 → https://cr.minzdrav.gov.ru/preview-cr/358_4 (2024)
+- Рак вульвы → МКБ: C51 → https://cr.minzdrav.gov.ru/preview-cr/343_2 (2024)
+- Лимфома Ходжкина → МКБ: C81 → https://cr.minzdrav.gov.ru/preview-cr/543_3 (2024)
+- Множественная миелома → МКБ: C90 → https://cr.minzdrav.gov.ru/preview-cr/538_4 (2024)
+- Острый миелоидный лейкоз → МКБ: C92 → https://cr.minzdrav.gov.ru/preview-cr/160_3 (2024)
+- Хронический лимфоцитарный лейкоз → МКБ: C91.1 → https://cr.minzdrav.gov.ru/preview-cr/542_3 (2024)
+
+## АЛГОРИТМ ВЫБОРА КОДА:
+
+1. По диагнозу врача — найди подходящий документ из списка выше.
+2. В поле "reasoning" укажи: название документа + точный URL из списка выше.
+3. Выбери ТОЛЬКО из предоставленного списка кодов МКБ-10.
+4. Если диагноз соответствует нескольким документам — выбери наиболее специфичный.
+5. Если нужного кода нет в списке — выбери ближайший родительский код и укажи это явно.
 `;
 
 /**
