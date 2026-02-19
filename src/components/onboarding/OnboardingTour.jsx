@@ -137,7 +137,7 @@ function Tooltip({ step, total, onNext, onPrev, onClose, targetRect }) {
 
 export default function OnboardingTour({ role }) {
   const storageKey = `onboarding_done_${role}`;
-  const [active, setActive] = useState(() => !sessionStorage.getItem(storageKey));
+  const [active, setActive] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
   const [targetRect, setTargetRect] = useState(null);
 
