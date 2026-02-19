@@ -178,6 +178,7 @@ export default function CaseInfoForm({ data, onChange }) {
   const [mkbQuery, setMkbQuery] = useState(data.mkb_code ? `${data.mkb_code} — ${data.mkb_description}` : "");
   const [mkbSearch, setMkbSearch] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
+  const [clarifications, setClarifications] = useState({});
 
   const updateDiagnosis = (index, field, value) => {
     const updated = [...diagnoses];
