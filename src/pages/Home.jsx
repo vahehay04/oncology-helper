@@ -94,13 +94,22 @@ function SpecialistDashboard({ onMode, activeMode, onBack }) {
 
   if (activeMode === "assistant") {
     return (
-      <div className="min-h-[calc(100vh-3.5rem)] bg-slate-50 flex flex-col">
-        <div className="max-w-2xl mx-auto w-full px-4">
-          <button onClick={onBack} className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 mt-6 mb-2 transition-colors">
+      <div className="min-h-[calc(100vh-3.5rem)] bg-slate-50">
+        <div className="max-w-3xl mx-auto px-6 py-8">
+          <button onClick={onBack} className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 mb-6 transition-colors">
             <ArrowLeft className="w-4 h-4" /> Назад
           </button>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-9 h-9 rounded-xl bg-violet-100 flex items-center justify-center text-violet-600">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-slate-800">ИИ-ассистент</h2>
+              <p className="text-xs text-slate-400">Только клинические рекомендации МЗ РФ / NCCN / ESMO</p>
+            </div>
+          </div>
+          <SpecialistSearch />
         </div>
-        <PatientChatComponent />
       </div>
     );
   }
