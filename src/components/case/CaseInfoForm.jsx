@@ -252,6 +252,15 @@ ${codesList}
     setMkbLoading(false);
   };
 
+  const handleClarificationChange = (param, value) => {
+    setClarifications(prev => ({ ...prev, [param]: value }));
+  };
+
+  const handleClarificationSubmit = () => {
+    handleAiMkbSuggest(clarifications);
+    setClarifications({});
+  };
+
   const filteredCodes = mkbSearch.length >= 2
     ? MKB_CODES.filter(m =>
         m.code.toLowerCase().includes(mkbSearch.toLowerCase()) ||
