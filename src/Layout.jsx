@@ -50,16 +50,22 @@ export default function Layout({ children, currentPageName }) {
               </span>
             </Link>
             <nav className={`flex items-center gap-6 ${hideNav ? "hidden" : ""}`}>
-              <Link to={createPageUrl("Home")} className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
-                На главную
-              </Link>
               <Link id="tour-nav-cases" to={createPageUrl("CasesList")} className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
                 Мои случаи
               </Link>
               <Link id="tour-nav-newcase" to={createPageUrl("NewCase")} className="text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-xl transition-colors">
-                Для специалистов
+                Новый случай
               </Link>
             </nav>
+            {currentPageName === "Home" && (
+              <Link
+                to={createPageUrl("PatientChat")}
+                className="text-sm text-gray-600 hover:text-gray-900 transition-colors ml-4"
+                onClick={() => { sessionStorage.setItem("userRole", "patient"); window.dispatchEvent(new Event("roleSelected")); }}
+              >
+                Для пациентов
+              </Link>
+            )}
           </div>
         </header>
       )}
