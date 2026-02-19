@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { CheckCircle2, AlertTriangle, XCircle, PlusCircle, ChevronDown, ChevronUp, ExternalLink, ShieldCheck } from "lucide-react";
+import { CheckCircle2, AlertTriangle, XCircle, PlusCircle, ChevronDown, ChevronUp, ExternalLink, ShieldCheck, BadgeCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 
