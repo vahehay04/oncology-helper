@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Trash2, Sparkles, Loader2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
-import { SOURCE_VALIDATION_PROMPT } from "@/components/lib/sourcePrompt";
+import { MKB_SYSTEM_PROMPT } from "@/components/lib/sourcePrompt";
 
 // Расширенный список МКБ-10 для онкологии
 const MKB_CODES = [
