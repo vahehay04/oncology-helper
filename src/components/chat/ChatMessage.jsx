@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default function ChatMessage({ role, content, actionButtons, onAction }) {
   const isUser = role === "user";
