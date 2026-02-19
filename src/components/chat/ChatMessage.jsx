@@ -24,6 +24,7 @@ export default function ChatMessage({ role, content, actionButtons, onAction }) 
             content
           ) : (
             <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
               components={{
                 h1: ({ children }) => (
                   <h1 className="text-base font-semibold text-gray-900 mt-4 mb-2 first:mt-0">{children}</h1>
