@@ -360,21 +360,36 @@ ${codesList}
 
         {/* AI suggestion */}
         {mkbSuggestion && (
-          <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-3 flex items-start justify-between gap-3">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-sm font-semibold text-indigo-800">{mkbSuggestion.code}</span>
-                <span className="text-sm text-indigo-700">— {mkbSuggestion.description}</span>
+          <div className={`border rounded-xl p-3 space-y-2 ${mkbSuggestion.needs_clarification ? "bg-amber-50 border-amber-200" : "bg-indigo-50 border-indigo-200"}`}>
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className={`text-sm font-semibold ${mkbSuggestion.needs_clarification ? "text-amber-800" : "text-indigo-800"}`}>{mkbSuggestion.code}</span>
+                  <span className={`text-sm ${mkbSuggestion.needs_clarification ? "text-amber-700" : "text-indigo-700"}`}>— {mkbSuggestion.description}</span>
+                </div>
+                <p className={`text-xs leading-relaxed ${mkbSuggestion.needs_clarification ? "text-amber-700" : "text-indigo-600"}`}>{mkbSuggestion.reasoning}</p>
               </div>
-              <p className="text-xs text-indigo-600 leading-relaxed">{mkbSuggestion.reasoning}</p>
+              <button
+                onClick={() => handleMkbSelect(mkbSuggestion.code, mkbSuggestion.description)}
+                className={`flex items-center gap-1.5 text-xs font-medium text-white px-3 py-1.5 rounded-lg transition-colors flex-shrink-0 ${mkbSuggestion.needs_clarification ? "bg-amber-500 hover:bg-amber-600" : "bg-indigo-600 hover:bg-indigo-700"}`}
+              >
+                <Check className="w-3 h-3" />
+                Принять
+              </button>
             </div>
-            <button
-              onClick={() => handleMkbSelect(mkbSuggestion.code, mkbSuggestion.description)}
-              className="flex items-center gap-1.5 text-xs font-medium bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg transition-colors flex-shrink-0"
-            >
-              <Check className="w-3 h-3" />
-              Принять
-            </button>
+            {mkbSuggestion.needs_clarification && mkbSuggestion.missing_params?.length > 0 && (
+              <div className="bg-amber-100 rounded-lg p-2.5">
+                <p className="text-xs font-semibold text-amber-800 mb-1.5">Для точного сопоставления с клиническими рекомендациями требуется уточнить:</p>
+                <ul className="space-y-0.5">
+                  {mkbSuggestion.missing_params.map((p, i) => (
+                    <li key={i} className="text-xs text-amber-700 flex items-start gap-1.5">
+                      <span className="mt-0.5 w-1 h-1 rounded-full bg-amber-500 flex-shrink-0" />
+                      {p}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         )}
 
