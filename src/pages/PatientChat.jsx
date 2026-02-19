@@ -1,31 +1,30 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "../utils";
-import { Brain } from "lucide-react";
+import { Activity, ArrowLeft } from "lucide-react";
 import PatientChatComponent from "@/components/chat/PatientChat";
 
 export default function PatientChatPage() {
   return (
-    <div
-      className="min-h-screen flex flex-col"
-      style={{
-        background: "linear-gradient(135deg, #eef0fb 0%, #f5eef8 50%, #eaf3fb 100%)",
-      }}
-    >
-      {/* Top bar */}
-      <header className="flex items-center justify-between px-8 py-5">
-        <Link to={createPageUrl("Home")} className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-md shadow-indigo-200/50">
-            <Brain className="w-5 h-5 text-white" />
+    <div className="min-h-screen flex flex-col bg-slate-50">
+      {/* Header */}
+      <header className="bg-white border-b border-slate-200 px-6 h-14 flex items-center justify-between flex-shrink-0">
+        <Link to={createPageUrl("Home")} className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center">
+            <Activity className="w-4 h-4 text-white" />
           </div>
-          <span className="text-sm font-bold tracking-widest text-gray-700 uppercase">Oncology Helper</span>
+          <span className="text-sm font-semibold text-slate-800 tracking-wide">Oncology Helper</span>
         </Link>
         <Link
           to={createPageUrl("Home")}
-          onClick={() => { sessionStorage.setItem("userRole", "specialist"); window.dispatchEvent(new Event("roleSelected")); }}
-          className="text-sm text-gray-500 hover:text-gray-800 border border-gray-200 bg-white/70 hover:bg-white px-4 py-2 rounded-full transition-all"
+          onClick={() => {
+            sessionStorage.setItem("userRole", "specialist");
+            window.dispatchEvent(new Event("roleSelected"));
+          }}
+          className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-blue-600 transition-colors"
         >
-          Для специалистов →
+          <ArrowLeft className="w-4 h-4" />
+          Я врач
         </Link>
       </header>
 
