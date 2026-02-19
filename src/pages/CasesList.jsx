@@ -126,6 +126,7 @@ export default function CasesList() {
           </div>
         )}
       </div>
+      <GuidelinePanel />
     </div>
   );
 }
