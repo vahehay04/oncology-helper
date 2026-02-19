@@ -105,6 +105,8 @@ export default function NewCase() {
           )}
         </motion.div>
 
+        <GuidelinePanel />
+
         {/* Navigation */}
         <div className="flex items-center justify-between mt-8">
           <Button
