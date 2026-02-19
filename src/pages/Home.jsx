@@ -4,7 +4,6 @@ import { Brain, BookOpen, Sparkles, ArrowLeft, Stethoscope, User, ArrowRight, Fi
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "../utils";
 import SpecialistSearch from "@/components/home/SpecialistSearch";
-import PatientChatComponent from "@/components/chat/PatientChat";
 
 // ─── Entry screen: choose role ────────────────────────────────────────────────
 function RoleSelect({ onSelect }) {
