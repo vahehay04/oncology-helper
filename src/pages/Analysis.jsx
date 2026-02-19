@@ -121,8 +121,11 @@ ${(caseData.treatment_performed || []).map(t => `- ${t.type}: ${t.details} (${t.
                 comment: { type: "string" },
                 source_domain: { type: "string" },
                 source_reference: { type: "string" },
+                source_reference_minzdrav: { type: "string" },
+                source_reference_russco: { type: "string" },
                 source_document: { type: "string" },
-                source_text: { type: "string" }
+                source_text: { type: "string" },
+                confirmed_by_both: { type: "boolean" }
               }
             }
           },
