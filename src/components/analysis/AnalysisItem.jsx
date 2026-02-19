@@ -101,17 +101,37 @@ export default function AnalysisItem({ item }) {
                   <p className="text-sm text-gray-700 italic leading-relaxed">«{item.source_text}»</p>
                 </div>
               )}
-              {item.source_reference && (
-                <div className="flex items-center gap-2">
-                  <ExternalLink className="w-3.5 h-3.5 text-indigo-500" />
-                  <a
-                    href={item.source_reference.startsWith("http") ? item.source_reference : "#"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-indigo-600 hover:text-indigo-800 underline underline-offset-2"
-                  >
-                    {item.source_reference}
-                  </a>
+              {(item.source_domain || item.source_document || item.source_reference) && (
+                <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-3 space-y-1.5">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <ShieldCheck className="w-3.5 h-3.5 text-indigo-500" />
+                    <span className="text-xs font-semibold text-indigo-600 uppercase tracking-wide">Верифицированный источник</span>
+                  </div>
+                  {item.source_domain && (
+                    <div className="flex items-start gap-2">
+                      <span className="text-xs text-indigo-400 w-20 flex-shrink-0">Домен:</span>
+                      <span className="text-xs font-mono text-indigo-700">{item.source_domain}</span>
+                    </div>
+                  )}
+                  {item.source_document && (
+                    <div className="flex items-start gap-2">
+                      <span className="text-xs text-indigo-400 w-20 flex-shrink-0">Документ:</span>
+                      <span className="text-xs text-indigo-700">{item.source_document}</span>
+                    </div>
+                  )}
+                  {item.source_reference && (
+                    <div className="flex items-start gap-2">
+                      <span className="text-xs text-indigo-400 w-20 flex-shrink-0">URL:</span>
+                      <a
+                        href={item.source_reference.startsWith("http") ? item.source_reference : "#"}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-indigo-600 hover:text-indigo-800 underline underline-offset-2 break-all"
+                      >
+                        {item.source_reference}
+                      </a>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
