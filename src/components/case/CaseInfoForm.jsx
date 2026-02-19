@@ -210,25 +210,7 @@ export default function CaseInfoForm({ data, onChange }) {
 
     const codesList = MKB_CODES.map(m => `- ${m.code}: ${m.desc}`).join("\n");
 
-    const prompt = `Ты — система глубокого нормативного анализа для врача-онколога. Твоя задача — подобрать ТОЧНЫЙ код МКБ-10 для диагноза.
-
-${SOURCE_VALIDATION_PROMPT}
-
-## ИСТОЧНИК ДЛЯ МКБ-10 КОДОВ: https://rosoncoweb.ru/standarts/minzdrav/
-
-## ОБЯЗАТЕЛЬНОЕ ПОВЕДЕНИЕ
-
-Перед формированием ответа ты ОБЯЗАН:
-1. Открыть https://rosoncoweb.ru/standarts/minzdrav/ и найти раздел по данной нозологии.
-2. Проверить наличие подклассификаций МКБ-10 (например: C15.0, C15.1, C15.2 и т.д.) ТОЛЬКО на rosoncoweb.ru или cr.minzdrav.gov.ru.
-3. НЕ использовать 24radiology.ru, medscape.com, UpToDate или любые другие сайты — они ЗАПРЕЩЕНЫ.
-4. Если rosoncoweb.ru и cr.minzdrav.gov.ru не содержат нужной информации — ответить что данных в регламентированных источниках недостаточно.
-
-## ПРАВИЛА ВЫБОРА КОДА
-
-1. Используй ТОЛЬКО коды из предоставленного списка ниже. Не придумывай новые коды.
-2. Обоснование пиши ТОЛЬКО со ссылкой на rosoncoweb.ru или cr.minzdrav.gov.ru — никаких других доменов.
-3. Если данных недостаточно — выбери ближайший родительский код и укажи недостающие параметры.
+    const prompt = `${MKB_SYSTEM_PROMPT}
 
 Диагноз врача: "${diagnosisText}"
 
@@ -239,7 +221,7 @@ ${codesList}
 {
   "code": "ТОЧНЫЙ КОД (максимально специфичный из списка)",
   "description": "ОПИСАНИЕ КОДА ИЗ СПИСКА",
-  "reasoning": "ОБОСНОВАНИЕ со ссылкой ТОЛЬКО на rosoncoweb.ru или cr.minzdrav.gov.ru",
+  "reasoning": "ОБОСНОВАНИЕ со ссылкой ТОЛЬКО на rosoncoweb.ru или cr.minzdrav.gov.ru (никаких других доменов)",
   "missing_params": ["параметр 1"] или [],
   "needs_clarification": true или false
 }`;
