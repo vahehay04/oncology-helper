@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "./utils";
-import { Activity } from "lucide-react";
+import { Brain } from "lucide-react";
 
 export default function Layout({ children, currentPageName }) {
   const [role, setRole] = React.useState(() => sessionStorage.getItem("userRole"));

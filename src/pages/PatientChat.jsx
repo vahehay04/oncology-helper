@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "../utils";
-import { Activity, ArrowLeft } from "lucide-react";
+import { Brain, ArrowLeft } from "lucide-react";
 import PatientChatComponent from "@/components/chat/PatientChat";
 
 export default function PatientChatPage() {
