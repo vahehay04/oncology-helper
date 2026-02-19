@@ -77,6 +77,7 @@ export default function Analysis() {
 Гистология: ${caseData.histology || "не указана"}
 ИГХ: ${caseData.immunohistochemistry || "не указана"}
 Молекулярные маркеры: ${caseData.molecular_markers || "не указаны"}
+${Object.keys(caseData.oncology_specific_fields || {}).length > 0 ? `\nСпецифические нозологические параметры:\n${Object.entries(caseData.oncology_specific_fields).map(([k, v]) => `- ${k}: ${v}`).join("\n")}` : ""}
 
 Выполненная диагностика:
 ${(caseData.diagnostics_performed || []).map(d => `- ${d.name}: ${d.result}`).join("\n") || "не указана"}
