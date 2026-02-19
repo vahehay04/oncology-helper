@@ -115,7 +115,9 @@ ${(caseData.treatment_performed || []).map(t => `- ${t.type}: ${t.details} (${t.
                 status: { type: "string", enum: ["рекомендовано", "сомнительно", "не_рекомендовано", "необходимо_дополнить"] },
                 evidence_level: { type: "string" },
                 comment: { type: "string" },
+                source_domain: { type: "string" },
                 source_reference: { type: "string" },
+                source_document: { type: "string" },
                 source_text: { type: "string" }
               }
             }
