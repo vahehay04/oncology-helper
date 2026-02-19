@@ -21,10 +21,11 @@ export default function PatientChatPage() {
           <span className="text-sm font-bold tracking-widest text-gray-700 uppercase">Oncology Helper</span>
         </Link>
         <Link
-          to={createPageUrl("NewCase")}
-          className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
+          to={createPageUrl("Home")}
+          onClick={() => { sessionStorage.setItem("userRole", "specialist"); window.dispatchEvent(new Event("roleSelected")); }}
+          className="text-sm text-gray-500 hover:text-gray-800 border border-gray-200 bg-white/70 hover:bg-white px-4 py-2 rounded-full transition-all"
         >
-          Для специалистов
+          Для специалистов →
         </Link>
       </header>
 
