@@ -63,6 +63,12 @@ export default function AnalysisItem({ item }) {
             )}
           </div>
           <p className="text-sm text-gray-600 line-clamp-2">{item.comment}</p>
+          {item.source_domain && (
+            <div className="flex items-center gap-1.5 mt-1.5">
+              <ShieldCheck className="w-3 h-3 text-indigo-400 flex-shrink-0" />
+              <span className="text-xs text-indigo-500 font-mono">{item.source_domain}</span>
+            </div>
+          )}
         </div>
         <div className="flex-shrink-0 mt-1">
           {expanded ? (
