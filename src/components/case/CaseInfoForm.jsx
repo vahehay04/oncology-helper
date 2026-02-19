@@ -181,6 +181,14 @@ export default function CaseInfoForm({ data, onChange }) {
   const [mkbSearch, setMkbSearch] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [clarifications, setClarifications] = useState({});
+  const [detectedOncology, setDetectedOncology] = useState(null);
+
+  // Определяем нозологию при изменении диагноза
+  useEffect(() => {
+    const allText = (data.diagnoses || []).map(d => d.text).filter(Boolean).join(" ");
+    const detected = detectOncologyType(allText);
+    setDetectedOncology(detected);
+  }, [data.diagnoses]);
 
   const updateDiagnosis = (index, field, value) => {
     const updated = [...diagnoses];
