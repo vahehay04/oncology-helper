@@ -18,23 +18,12 @@ export default function Layout({ children, currentPageName }) {
   return (
     <div className="min-h-screen bg-white font-sans">
       <style>{`
-        :root {
-          --primary: #1a1a2e;
-          --accent: #6366f1;
-          --bg-gradient-start: #f0f0ff;
-          --bg-gradient-mid: #fff0f0;
-          --bg-gradient-end: #f0f0ff;
-        }
         body {
           font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
-        .gradient-bg {
-          background: radial-gradient(ellipse at 50% 30%, rgba(255,200,200,0.15) 0%, rgba(200,200,255,0.1) 50%, rgba(240,240,255,0.05) 100%);
-        }
         .glass-input {
-          background: rgba(255,255,255,0.8);
-          backdrop-filter: blur(20px);
-          border: 1px solid rgba(0,0,0,0.06);
+          background: #ffffff;
+          border: 1px solid rgba(0,0,0,0.08);
         }
       `}</style>
 
