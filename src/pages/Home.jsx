@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { BookOpen, Sparkles, ArrowLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "../utils";
