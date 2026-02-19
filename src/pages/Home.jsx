@@ -18,7 +18,7 @@ function RoleSelect({ onSelect }) {
       >
         <div className="flex items-center gap-3 mb-2">
           <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center">
-            <span className="text-white text-lg font-bold">O</span>
+            <Brain className="w-5 h-5 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-slate-800">Oncology Helper</h1>
         </div>

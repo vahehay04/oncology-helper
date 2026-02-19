@@ -11,7 +11,7 @@ export default function PatientChatPage() {
       <header className="bg-white border-b border-slate-200 px-6 h-14 flex items-center justify-between flex-shrink-0">
         <Link to={createPageUrl("Home")} className="flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center">
-            <Activity className="w-4 h-4 text-white" />
+            <Brain className="w-4 h-4 text-white" />
           </div>
           <span className="text-sm font-semibold text-slate-800 tracking-wide">Oncology Helper</span>
         </Link>
