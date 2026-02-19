@@ -109,25 +109,50 @@ export default function AnalysisItem({ item }) {
                   <p className="text-sm text-gray-700 italic leading-relaxed">«{item.source_text}»</p>
                 </div>
               )}
-              {(item.source_domain || item.source_document || item.source_reference) && (
-                <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-3 space-y-1.5">
+              {(item.source_domain || item.source_document || item.source_reference || item.source_reference_minzdrav || item.source_reference_russco) && (
+                <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-3 space-y-2">
                   <div className="flex items-center gap-1.5 mb-1">
                     <ShieldCheck className="w-3.5 h-3.5 text-indigo-500" />
-                    <span className="text-xs font-semibold text-indigo-600 uppercase tracking-wide">Верифицированный источник</span>
+                    <span className="text-xs font-semibold text-indigo-600 uppercase tracking-wide">
+                      {item.confirmed_by_both ? "Подтверждено двумя источниками" : "Верифицированный источник"}
+                    </span>
                   </div>
-                  {item.source_domain && (
-                    <div className="flex items-start gap-2">
-                      <span className="text-xs text-indigo-400 w-20 flex-shrink-0">Домен:</span>
-                      <span className="text-xs font-mono text-indigo-700">{item.source_domain}</span>
-                    </div>
-                  )}
                   {item.source_document && (
                     <div className="flex items-start gap-2">
                       <span className="text-xs text-indigo-400 w-20 flex-shrink-0">Документ:</span>
                       <span className="text-xs text-indigo-700">{item.source_document}</span>
                     </div>
                   )}
-                  {item.source_reference && (
+                  {/* Минздрав ссылка */}
+                  {item.source_reference_minzdrav && (
+                    <div className="flex items-start gap-2">
+                      <span className="text-xs text-indigo-400 w-20 flex-shrink-0">Минздрав:</span>
+                      <a
+                        href={item.source_reference_minzdrav}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-indigo-600 hover:text-indigo-800 underline underline-offset-2 break-all"
+                      >
+                        {item.source_reference_minzdrav}
+                      </a>
+                    </div>
+                  )}
+                  {/* RUSSCO ссылка */}
+                  {item.source_reference_russco && (
+                    <div className="flex items-start gap-2">
+                      <span className="text-xs text-indigo-400 w-20 flex-shrink-0">RUSSCO:</span>
+                      <a
+                        href={item.source_reference_russco}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-indigo-600 hover:text-indigo-800 underline underline-offset-2 break-all"
+                      >
+                        {item.source_reference_russco}
+                      </a>
+                    </div>
+                  )}
+                  {/* Fallback одиночная ссылка */}
+                  {!item.source_reference_minzdrav && !item.source_reference_russco && item.source_reference && (
                     <div className="flex items-start gap-2">
                       <span className="text-xs text-indigo-400 w-20 flex-shrink-0">URL:</span>
                       <a
