@@ -97,7 +97,7 @@ export default function PatientChat() {
       : "";
 
     const res = await base44.integrations.Core.InvokeLLM({
-      prompt: `Ты — внимательный медицинский консультант для пациентов. Твоя задача — объяснять медицинскую информацию простым, понятным языком, без страшных терминов и запугивания.\n${SOURCES_PROMPT}\n\nВопрос пациента: ${text}${docCtx}`,
+      prompt: `${PATIENT_SYSTEM_PROMPT}\n\nВопрос пациента: ${text}${docCtx}`,
       add_context_from_internet: true,
     });
 
