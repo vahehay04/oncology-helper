@@ -98,10 +98,10 @@ ${uploadedFileUrl ? "\n[К запросу приложен документ — 
       {/* Floating button */}
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl shadow-lg shadow-blue-200 transition-all"
+        title="Умный справочник"
+        className="fixed bottom-6 right-6 z-40 w-11 h-11 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg shadow-blue-200 transition-all flex items-center justify-center"
       >
-        <BookOpen className="w-4 h-4" />
-        Справочник
+        <Search className="w-5 h-5" />
       </button>
 
       {/* Panel */}
