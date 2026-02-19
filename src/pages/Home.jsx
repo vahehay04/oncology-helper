@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { BookOpen, Sparkles, ArrowLeft, Stethoscope, User, ArrowRight, FileText, Search } from "lucide-react";
+import { Brain, BookOpen, Sparkles, ArrowLeft, Stethoscope, User, ArrowRight, FileText, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "../utils";
 import SpecialistSearch from "@/components/home/SpecialistSearch";
