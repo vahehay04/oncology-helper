@@ -63,12 +63,20 @@ export default function AnalysisItem({ item }) {
             )}
           </div>
           <p className="text-sm text-gray-600 line-clamp-2">{item.comment}</p>
-          {item.source_domain && (
-            <div className="flex items-center gap-1.5 mt-1.5">
-              <ShieldCheck className="w-3 h-3 text-indigo-400 flex-shrink-0" />
-              <span className="text-xs text-indigo-500 font-mono">{item.source_domain}</span>
-            </div>
-          )}
+          <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+            {item.confirmed_by_both && (
+              <span className="inline-flex items-center gap-1 text-xs text-emerald-600 font-medium bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5">
+                <BadgeCheck className="w-3 h-3" />
+                Минздрав + RUSSCO
+              </span>
+            )}
+            {item.source_domain && !item.confirmed_by_both && (
+              <div className="flex items-center gap-1.5">
+                <ShieldCheck className="w-3 h-3 text-indigo-400 flex-shrink-0" />
+                <span className="text-xs text-indigo-500 font-mono">{item.source_domain}</span>
+              </div>
+            )}
+          </div>
         </div>
         <div className="flex-shrink-0 mt-1">
           {expanded ? (
