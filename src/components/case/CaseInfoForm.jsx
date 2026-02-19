@@ -202,7 +202,7 @@ export default function CaseInfoForm({ data, onChange }) {
     setMkbSuggestion(null);
   };
 
-  const handleAiMkbSuggest = async () => {
+  const handleAiMkbSuggest = async (extraClarifications = {}) => {
     const diagnosisText = diagnoses.map(d => d.text).filter(Boolean).join("; ");
     if (!diagnosisText) return;
 
@@ -211,9 +211,15 @@ export default function CaseInfoForm({ data, onChange }) {
 
     const codesList = MKB_CODES.map(m => `- ${m.code}: ${m.desc}`).join("\n");
 
+    const clarificationText = Object.entries(extraClarifications)
+      .filter(([, v]) => v?.trim())
+      .map(([k, v]) => `- ${k}: ${v}`)
+      .join("\n");
+
     const prompt = `${MKB_SYSTEM_PROMPT}
 
 Диагноз врача: "${diagnosisText}"
+${clarificationText ? `\nДополнительные уточнения от врача:\n${clarificationText}` : ""}
 
 Список возможных кодов МКБ-10:
 ${codesList}
@@ -223,7 +229,7 @@ ${codesList}
   "code": "ТОЧНЫЙ КОД (максимально специфичный из списка)",
   "description": "ОПИСАНИЕ КОДА ИЗ СПИСКА",
   "reasoning": "ОБОСНОВАНИЕ со ссылкой ТОЛЬКО на rosoncoweb.ru или cr.minzdrav.gov.ru (никаких других доменов)",
-  "missing_params": ["параметр 1"] или [],
+  "missing_params": ["параметр 1 (краткое название вопроса)"] или [],
   "needs_clarification": true или false
 }`;
 
