@@ -204,14 +204,16 @@ ${caseContext}
   statusCounts["необходимо_дополнить"] += (analysisResult?.missing_items?.length || 0);
 
   const allItems = analysisResult?.analysis_items || [];
+  const normalizeType = (val) => (val || "").toLowerCase().trim();
+
   const filteredItems = allItems.filter(item => {
     const srcOk = activeSection === "all" || (item.source || "").toLowerCase().includes(activeSection.toLowerCase());
-    const catOk = activeCategory === "all" || (item.analysis_type || "").toLowerCase() === activeCategory.toLowerCase();
+    const catOk = activeCategory === "all" || normalizeType(item.analysis_type).includes(normalizeType(activeCategory));
     return srcOk && catOk;
   });
 
   const filteredMissing = (analysisResult?.missing_items || []).filter(item => {
-    return activeCategory === "all" || (item.analysis_type || "").toLowerCase() === activeCategory.toLowerCase();
+    return activeCategory === "all" || normalizeType(item.analysis_type).includes(normalizeType(activeCategory));
   });
 
   // Case summary fields
