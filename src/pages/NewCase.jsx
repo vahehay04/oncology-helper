@@ -101,6 +101,7 @@ export default function NewCase() {
               treatments={treatments}
               onDiagnosticsChange={setDiagnostics}
               onTreatmentsChange={setTreatments}
+              caseData={caseInfoData}
             />
           )}
         </motion.div>
