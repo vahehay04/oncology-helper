@@ -248,16 +248,7 @@ ${codesList}
         type: "object",
         properties: {
           case_number: { type: "string" },
-          diagnoses: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                type: { type: "string" },
-                text: { type: "string" },
-              }
-            }
-          },
+          diagnoses: { type: "array", items: { type: "object", properties: { type: { type: "string" }, text: { type: "string" } } } },
           mkb_code: { type: "string" },
           mkb_description: { type: "string" },
           tumor_stage: { type: "string" },
@@ -267,35 +258,14 @@ ${codesList}
           immunohistochemistry: { type: "string" },
           molecular_markers: { type: "string" },
           oncology_specific_fields: { type: "object", additionalProperties: true },
-          diagnostics_performed: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                name: { type: "string" },
-                date: { type: "string" },
-                result: { type: "string" },
-              }
-            }
-          },
-          treatment_performed: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                type: { type: "string" },
-                details: { type: "string" },
-                start_date: { type: "string" },
-                end_date: { type: "string" },
-                result: { type: "string" },
-              }
-            }
-          },
+          diagnostics_performed: { type: "array", items: { type: "object", properties: { name: { type: "string" }, date: { type: "string" }, result: { type: "string" } } } },
+          treatment_performed: { type: "array", items: { type: "object", properties: { type: { type: "string" }, details: { type: "string" }, start_date: { type: "string" }, end_date: { type: "string" }, result: { type: "string" } } } },
           side_effects: { type: "string" },
           outcomes: { type: "string" },
-        }
-      }
-    });
+          }
+          }
+          });
+          }
 
     // Merge extracted data into form
     const merged = { ...data };
