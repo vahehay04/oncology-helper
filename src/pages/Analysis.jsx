@@ -56,50 +56,51 @@ export default function Analysis() {
 
     const guidelineUrl = findGuidelineUrl(caseData.mkb_code);
 
-    const prompt = `Ты — строго нормативный AI-эксперт по онкологии. Проведи анализ клинического случая по трём источникам: RUSSCO, Минздрав РФ, NCCN.
+    const diagnosticsList = (caseData.diagnostics_performed || [])
+      .map((d, i) => `${i + 1}. [ДИАГНОСТИКА] ${d.name}${d.custom_name ? ` (${d.custom_name})` : ""}${d.date ? `, дата: ${d.date}` : ""}: ${d.result || "результат не указан"}`)
+      .join("\n");
+
+    const treatmentsList = (caseData.treatment_performed || [])
+      .map((t, i) => `${i + 1}. [ЛЕЧЕНИЕ] ${t.type}${t.custom_type ? ` (${t.custom_type})` : ""}${t.start_date ? `, начало: ${t.start_date}` : ""}${t.end_date ? `, конец: ${t.end_date}` : ""}: ${t.details || ""}${t.result ? ` → результат: ${t.result}` : ""}`)
+      .join("\n");
+
+    const prompt = `Ты — строго нормативный AI-эксперт по онкологии. Проведи полный анализ клинического случая по рекомендациям RUSSCO, Минздрав РФ и NCCN.
 
 РАЗРЕШЁННЫЕ ДОМЕНЫ:
 1. cr.minzdrav.gov.ru — клинические рекомендации Минздрава РФ
 2. rosoncoweb.ru — рекомендации RUSSCO
-3. nccn.org — рекомендации NCCN (Guidelines for Patients / Professionals)
+3. nccn.org — рекомендации NCCN
 
-ДАННЫЕ КЛИНИЧЕСКОГО СЛУЧАЯ:
+ДАННЫЕ СЛУЧАЯ:
 Диагноз: ${caseData.diagnosis_text || "не указан"}
-Код МКБ-10: ${caseData.mkb_code || "не указан"}${guidelineUrl ? `\nСсылка на документ Минздрава: ${guidelineUrl}` : ""}
+Код МКБ-10: ${caseData.mkb_code || "не указан"}${guidelineUrl ? `\nСсылка Минздрава: ${guidelineUrl}` : ""}
 Стадия: T${caseData.t_stage || "?"} N${caseData.n_stage || "?"} M${caseData.m_stage || "?"}, стадия ${caseData.tumor_stage || "?"}
 ИГХ: ${caseData.immunohistochemistry || "не указана"}
 Молекулярные маркеры: ${caseData.molecular_markers || "не указаны"}
 ${Object.keys(caseData.oncology_specific_fields || {}).length > 0 ? `Специфические параметры:\n${Object.entries(caseData.oncology_specific_fields).map(([k, v]) => `- ${k}: ${v}`).join("\n")}` : ""}
 
-Выполненная диагностика:
-${(caseData.diagnostics_performed || []).map(d => `- ${d.name}${d.custom_name ? ` (${d.custom_name})` : ""}: ${d.result}`).join("\n") || "не указана"}
+ВСЯ ВЫПОЛНЕННАЯ ДИАГНОСТИКА (с начала заболевания):
+${diagnosticsList || "не указана"}
 
-Проведённое лечение:
-${(caseData.treatment_performed || []).map(t => `- ${t.type}${t.custom_type ? ` (${t.custom_type})` : ""}: ${t.details} (${t.result || ""})`).join("\n") || "не указано"}
+ВСЁ ПРОВЕДЁННОЕ ЛЕЧЕНИЕ (с начала заболевания):
+${treatmentsList || "не указано"}
 
-ЗАДАНИЕ:
-Для каждого пункта диагностики и лечения проверь соответствие рекомендациям. Раздели анализ по:
-- source: "RUSSCO" / "Минздрав" / "NCCN" (один пункт может иметь несколько источников — тогда создай отдельные записи)
-- analysis_type: "диагностика" / "лечение"
+ОБЯЗАТЕЛЬНОЕ ЗАДАНИЕ:
+1. КАЖДЫЙ пункт из списков диагностики и лечения выше ДОЛЖЕН получить свой статус. Ни один пункт не должен быть пропущен.
+2. Для каждого пункта создай отдельную запись в analysis_items со статусом:
+   - "рекомендовано" — соответствует протоколу
+   - "сомнительно" — частичное соответствие или спорно
+   - "не_рекомендовано" — противоречит протоколу или устарело
+3. В поле "item" точно укажи название пункта из списка выше.
+4. В поле "analysis_type" укажи "диагностика" или "лечение".
+5. В поле "source" укажи "RUSSCO", "Минздрав" или "NCCN".
+6. В поле "source_reference" укажи реальный URL только из cr.minzdrav.gov.ru/preview-cr/..., rosoncoweb.ru/standarts/ или nccn.org/guidelines/. НЕ придумывай URL.
+7. В поле "comment" дай конкретный комментарий со ссылкой на раздел документа.
 
-Для КАЖДОГО пункта:
-- item: название пункта
-- status: "рекомендовано" / "сомнительно" / "не_рекомендовано" / "необходимо_дополнить"
-- evidence_level: уровень доказательности
-- comment: комментарий по документу
-- source: "RUSSCO" / "Минздрав" / "NCCN"
-- analysis_type: "диагностика" / "лечение"
-- source_reference: РАБОЧИЙ URL документа (только из cr.minzdrav.gov.ru, rosoncoweb.ru или nccn.org)
-- source_text: цитата из документа
+Дополнительно в missing_items укажи всё, что по протоколу необходимо было сделать, но НЕ было сделано (диагностика или лечение которые отсутствуют в списках выше).
 
-ВАЖНО: URL должны быть реальными и рабочими. Для Минздрава используй только ссылки из списка cr.minzdrav.gov.ru/preview-cr/...
-Для RUSSCO используй rosoncoweb.ru/standarts/ или конкретные страницы.
-Для NCCN используй nccn.org/guidelines/...
-НЕ придумывай несуществующие URL.
-
-Также укажи missing_items (чего не хватает по протоколу).
 overall_compliance: "высокое" / "среднее" / "низкое"
-summary: краткое заключение`;
+summary: краткое клиническое заключение (3-5 предложений)`;
 
     const result = await base44.integrations.Core.InvokeLLM({
       prompt,
