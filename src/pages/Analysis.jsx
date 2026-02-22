@@ -103,42 +103,15 @@ overall_compliance: "высокое" / "среднее" / "низкое"
 summary: краткое клиническое заключение (3-5 предложений)`;
 
     const result = await base44.integrations.Core.InvokeLLM({
-      prompt,
+      prompt: prompt + `\n\nВерни ТОЛЬКО валидный JSON без лишних символов в формате:
+{"analysis_items":[{"item":"...","status":"рекомендовано|сомнительно|не_рекомендовано","analysis_type":"диагностика|лечение","source":"RUSSCO|Минздрав|NCCN","evidence_level":"...","comment":"...","source_reference":"...","source_text":"..."}],"missing_items":[{"item":"...","recommendation":"...","analysis_type":"диагностика|лечение","source_reference":"..."}],"overall_compliance":"высокое|среднее|низкое","summary":"..."}`,
       add_context_from_internet: true,
       response_json_schema: {
         type: "object",
         properties: {
-          analysis_items: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                category: { type: "string" },
-                item: { type: "string" },
-                status: { type: "string", enum: ["рекомендовано", "сомнительно", "не_рекомендовано", "необходимо_дополнить"] },
-                evidence_level: { type: "string" },
-                comment: { type: "string" },
-                source: { type: "string" },
-                analysis_type: { type: "string" },
-                source_reference: { type: "string" },
-                source_text: { type: "string" },
-              }
-            }
-          },
-          missing_items: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                category: { type: "string" },
-                item: { type: "string" },
-                recommendation: { type: "string" },
-                source_reference: { type: "string" },
-                analysis_type: { type: "string" },
-              }
-            }
-          },
-          overall_compliance: { type: "string", enum: ["высокое", "среднее", "низкое"] },
+          analysis_items: { type: "array", items: { type: "object" } },
+          missing_items: { type: "array", items: { type: "object" } },
+          overall_compliance: { type: "string" },
           summary: { type: "string" }
         }
       }
