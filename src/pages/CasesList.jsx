@@ -108,7 +108,7 @@ export default function CasesList() {
                           )}
                         </div>
                         <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1">
-                          {c.diagnosis_text || "Без диагноза"}
+                          {(c.diagnosis_text || "Без диагноза").replace(/\[.*?\]\s*/g, "")}
                         </h3>
                         <div className="flex items-center gap-4 text-sm text-gray-400">
                           {patient && (
