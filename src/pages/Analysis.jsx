@@ -248,7 +248,7 @@ ${caseContext}
               <ArrowLeft className="w-3.5 h-3.5" />К списку случаев
             </Link>
             <h1 className="text-2xl font-bold text-gray-900">Результат анализа</h1>
-            <p className="text-gray-500 text-sm mt-1 line-clamp-2 max-w-xl">{clinicalCase.diagnosis_text}</p>
+            <p className="text-gray-500 text-sm mt-1 line-clamp-2 max-w-xl">{(clinicalCase.diagnosis_text || "").replace(/\[.*?\]\s*/g, "")}</p>
           </div>
           <div className="flex gap-3 flex-wrap">
             {analysisResult && !analyzing && (
