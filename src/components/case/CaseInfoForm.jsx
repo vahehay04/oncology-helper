@@ -206,6 +206,7 @@ ${codesList}
     const basePrompt = `Ты — медицинский эксперт-онколог. Из приложенного медицинского документа извлеки все данные клинического случая: диагноз, МКБ-10, стадию TNM, ИГХ, молекулярные маркеры (HER2, BRCA, PIK3CA, EGFR и др.), диагностику, лечение, побочные эффекты, исходы. Верни JSON. Если данных нет — оставь пустую строку или пустой массив.`;
 
     const isImage = /\.(png|jpg|jpeg|gif|webp)$/i.test(fileName);
+    const isDocx = /\.docx$/i.test(fileName);
 
     let result;
     if (isImage) {
@@ -214,7 +215,17 @@ ${codesList}
         file_urls: [fileUrl],
         response_json_schema: extractionSchema,
       });
+    } else if (isDocx) {
+      // Fetch the uploaded file, convert docx to text client-side via mammoth
+      const response = await fetch(fileUrl);
+      const arrayBuffer = await response.arrayBuffer();
+      const { value: docText } = await mammoth.extractRawText({ arrayBuffer });
+      result = await base44.integrations.Core.InvokeLLM({
+        prompt: basePrompt + `\n\nСодержимое документа:\n${docText}`,
+        response_json_schema: extractionSchema,
+      });
     } else {
+      // pdf, txt — use ExtractDataFromUploadedFile
       const extracted = await base44.integrations.Core.ExtractDataFromUploadedFile({
         file_url: fileUrl,
         json_schema: { type: "object", properties: { text: { type: "string" } } }
