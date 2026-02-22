@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, Sparkles, Loader2, Check } from "lucide-react";
+import { Plus, Trash2, Sparkles, Loader2, Check, Upload, FileText, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
 import { MKB_SYSTEM_PROMPT } from "@/components/lib/sourcePrompt";
@@ -18,155 +18,54 @@ const MKB_CODES = [
   { code: "C04", desc: "Злокачественное новообразование дна полости рта" },
   { code: "C05", desc: "Злокачественное новообразование нёба" },
   { code: "C06", desc: "Злокачественное новообразование других и неуточненных отделов рта" },
-  { code: "C07", desc: "Злокачественное новообразование околоушной слюнной железы" },
-  { code: "C08", desc: "Злокачественное новообразование других и неуточненных больших слюнных желез" },
   { code: "C09", desc: "Злокачественное новообразование миндалины" },
   { code: "C10", desc: "Злокачественное новообразование ротоглотки" },
   { code: "C11", desc: "Злокачественное новообразование носоглотки" },
   { code: "C12", desc: "Злокачественное новообразование грушевидного синуса" },
   { code: "C13", desc: "Злокачественное новообразование нижней части глотки" },
-  { code: "C14", desc: "Злокачественное новообразование других и неточно обозначенных локализаций губы, полости рта и глотки" },
   { code: "C15", desc: "Злокачественное новообразование пищевода" },
   { code: "C16", desc: "Злокачественное новообразование желудка" },
-  { code: "C17", desc: "Злокачественное новообразование тонкого кишечника" },
   { code: "C18", desc: "Злокачественное новообразование ободочной кишки" },
-  { code: "C19", desc: "Злокачественное новообразование ректосигмоидного соединения" },
   { code: "C20", desc: "Злокачественное новообразование прямой кишки" },
   { code: "C21", desc: "Злокачественное новообразование заднего прохода и анального канала" },
-  { code: "C22", desc: "Злокачественное новообразование печени и внутрипечёночных желчных протоков" },
+  { code: "C22", desc: "Злокачественное новообразование печени" },
   { code: "C23", desc: "Злокачественное новообразование желчного пузыря" },
-  { code: "C24", desc: "Злокачественное новообразование других и неуточненных частей желчевыводящих путей" },
   { code: "C25", desc: "Злокачественное новообразование поджелудочной железы" },
-  { code: "C26", desc: "Злокачественное новообразование других и неточно обозначенных органов пищеварения" },
-  { code: "C30", desc: "Злокачественное новообразование полости носа и среднего уха" },
-  { code: "C31", desc: "Злокачественное новообразование придаточных пазух" },
+  { code: "C30", desc: "Злокачественное новообразование полости носа" },
   { code: "C32", desc: "Злокачественное новообразование гортани" },
   { code: "C33", desc: "Злокачественное новообразование трахеи" },
   { code: "C34", desc: "Злокачественное новообразование бронхов и легкого" },
-  { code: "C34.0", desc: "Злокачественное новообразование главного бронха" },
-  { code: "C34.1", desc: "Злокачественное новообразование верхней доли бронха или легкого" },
-  { code: "C34.2", desc: "Злокачественное новообразование средней доли бронха или легкого" },
-  { code: "C34.3", desc: "Злокачественное новообразование нижней доли бронха или легкого" },
-  { code: "C34.8", desc: "Злокачественное новообразование бронхов и легкого, выходящее за пределы одной и более локализаций" },
-  { code: "C34.9", desc: "Злокачественное новообразование бронхов и легкого неуточненное" },
-  { code: "C37", desc: "Злокачественное новообразование вилочковой железы" },
-  { code: "C38", desc: "Злокачественное новообразование сердца, средостения и плевры" },
-  { code: "C40", desc: "Злокачественное новообразование костей и суставных хрящей конечностей" },
-  { code: "C41", desc: "Злокачественное новообразование костей и суставных хрящей других и неуточненных локализаций" },
+  { code: "C40", desc: "Злокачественное новообразование костей конечностей" },
+  { code: "C41", desc: "Злокачественное новообразование костей других локализаций" },
   { code: "C43", desc: "Злокачественная меланома кожи" },
   { code: "C43.0", desc: "Злокачественная меланома губы" },
-  { code: "C43.1", desc: "Злокачественная меланома века, включая спайку век" },
-  { code: "C43.2", desc: "Злокачественная меланома уха и наружного слухового прохода" },
-  { code: "C43.3", desc: "Злокачественная меланома других и неуточненных частей лица" },
-  { code: "C43.4", desc: "Злокачественная меланома волосистой части головы и шеи" },
+  { code: "C43.3", desc: "Злокачественная меланома лица" },
   { code: "C43.5", desc: "Злокачественная меланома туловища" },
-  { code: "C43.6", desc: "Злокачественная меланома верхней конечности, включая область плечевого пояса" },
-  { code: "C43.7", desc: "Злокачественная меланома нижней конечности, включая тазобедренную область" },
-  { code: "C43.8", desc: "Злокачественная меланома кожи, выходящая за пределы одной и более вышеуказанных локализаций" },
+  { code: "C43.6", desc: "Злокачественная меланома верхней конечности" },
+  { code: "C43.7", desc: "Злокачественная меланома нижней конечности" },
   { code: "C43.9", desc: "Злокачественная меланома кожи неуточненная" },
   { code: "C44", desc: "Другие злокачественные новообразования кожи" },
-  { code: "C45", desc: "Мезотелиома" },
-  { code: "C46", desc: "Саркома Капоши" },
-  { code: "C47", desc: "Злокачественное новообразование периферических нервов и вегетативной нервной системы" },
-  { code: "C48", desc: "Злокачественное новообразование забрюшинного пространства и брюшины" },
-  { code: "C49", desc: "Злокачественное новообразование других типов соединительной и мягких тканей" },
+  { code: "C49", desc: "Злокачественное новообразование мягких тканей" },
   { code: "C50", desc: "Злокачественное новообразование молочной железы" },
-  { code: "C50.0", desc: "Злокачественное новообразование соска и ареолы молочной железы" },
-  { code: "C50.1", desc: "Злокачественное новообразование центральной части молочной железы" },
-  { code: "C50.2", desc: "Злокачественное новообразование верхневнутреннего квадранта молочной железы" },
-  { code: "C50.3", desc: "Злокачественное новообразование нижневнутреннего квадранта молочной железы" },
-  { code: "C50.4", desc: "Злокачественное новообразование верхненаружного квадранта молочной железы" },
-  { code: "C50.5", desc: "Злокачественное новообразование нижненаружного квадранта молочной железы" },
-  { code: "C50.6", desc: "Злокачественное новообразование подмышечной области молочной железы" },
-  { code: "C50.8", desc: "Злокачественное новообразование молочной железы, выходящее за пределы одной и более локализаций" },
-  { code: "C50.9", desc: "Злокачественное новообразование молочной железы неуточненной локализации" },
+  { code: "C50.9", desc: "Злокачественное новообразование молочной железы неуточненное" },
   { code: "C51", desc: "Злокачественное новообразование вульвы" },
   { code: "C52", desc: "Злокачественное новообразование влагалища" },
   { code: "C53", desc: "Злокачественное новообразование шейки матки" },
-  { code: "C53.0", desc: "Злокачественное новообразование внутренней части шейки матки" },
-  { code: "C53.1", desc: "Злокачественное новообразование наружной части шейки матки" },
-  { code: "C53.8", desc: "Злокачественное новообразование шейки матки, выходящее за пределы одной и более локализаций" },
-  { code: "C53.9", desc: "Злокачественное новообразование шейки матки неуточненное" },
   { code: "C54", desc: "Злокачественное новообразование тела матки" },
-  { code: "C55", desc: "Злокачественное новообразование матки неуточненной локализации" },
   { code: "C56", desc: "Злокачественное новообразование яичника" },
-  { code: "C57", desc: "Злокачественное новообразование других и неуточненных женских половых органов" },
-  { code: "C58", desc: "Злокачественное новообразование плаценты" },
-  { code: "C60", desc: "Злокачественное новообразование полового члена" },
   { code: "C61", desc: "Злокачественное новообразование предстательной железы" },
   { code: "C62", desc: "Злокачественное новообразование яичка" },
-  { code: "C63", desc: "Злокачественное новообразование других и неуточненных мужских половых органов" },
-  { code: "C64", desc: "Злокачественное новообразование почки, кроме почечной лоханки" },
-  { code: "C65", desc: "Злокачественное новообразование почечной лоханки" },
-  { code: "C66", desc: "Злокачественное новообразование мочеточника" },
+  { code: "C64", desc: "Злокачественное новообразование почки" },
   { code: "C67", desc: "Злокачественное новообразование мочевого пузыря" },
-  { code: "C68", desc: "Злокачественное новообразование других и неуточненных мочевых органов" },
-  { code: "C69", desc: "Злокачественное новообразование глаза и его придаточного аппарата" },
-  { code: "C70", desc: "Злокачественное новообразование мозговых оболочек" },
   { code: "C71", desc: "Злокачественное новообразование головного мозга" },
-  { code: "C71.0", desc: "Злокачественное новообразование полушарий головного мозга" },
-  { code: "C71.1", desc: "Злокачественное новообразование лобной доли" },
-  { code: "C71.2", desc: "Злокачественное новообразование теменной доли" },
-  { code: "C71.3", desc: "Злокачественное новообразование височной доли" },
-  { code: "C71.4", desc: "Злокачественное новообразование затылочной доли" },
-  { code: "C71.5", desc: "Злокачественное новообразование желудочка мозга" },
-  { code: "C71.6", desc: "Злокачественное новообразование мозжечка" },
-  { code: "C71.7", desc: "Злокачественное новообразование ствола мозга" },
-  { code: "C71.8", desc: "Злокачественное новообразование головного мозга, выходящее за пределы одной и более локализаций" },
-  { code: "C71.9", desc: "Злокачественное новообразование головного мозга неуточненное" },
-  { code: "C72", desc: "Злокачественное новообразование спинного мозга, черепных нервов и других отделов центральной нервной системы" },
   { code: "C73", desc: "Злокачественное новообразование щитовидной железы" },
-  { code: "C74", desc: "Злокачественное новообразование надпочечника" },
-  { code: "C75", desc: "Злокачественное новообразование других эндокринных желез и родственных структур" },
-  { code: "C76", desc: "Злокачественное новообразование других и неточно обозначенных локализаций" },
-  { code: "C77", desc: "Вторичное и неуточненное злокачественное новообразование лимфатических узлов" },
-  { code: "C78", desc: "Вторичное злокачественное новообразование органов дыхания и пищеварения" },
-  { code: "C79", desc: "Вторичное злокачественное новообразование других локализаций" },
   { code: "C80", desc: "Злокачественное новообразование без уточнения локализации" },
   { code: "C81", desc: "Болезнь Ходжкина" },
-  { code: "C82", desc: "Фолликулярная лимфома" },
   { code: "C83", desc: "Нефолликулярная лимфома" },
-  { code: "C84", desc: "Зрелые T/NK-клеточные лимфомы" },
-  { code: "C85", desc: "Другие и неуточненные типы неходжкинской лимфомы" },
-  { code: "C88", desc: "Злокачественные иммунопролиферативные болезни" },
-  { code: "C90", desc: "Множественная миелома и злокачественные плазмоклеточные новообразования" },
+  { code: "C90", desc: "Множественная миелома" },
   { code: "C91", desc: "Лимфоидный лейкоз" },
   { code: "C92", desc: "Миелоидный лейкоз" },
-  { code: "C93", desc: "Моноцитарный лейкоз" },
-  { code: "C94", desc: "Другие лейкозы уточненного клеточного типа" },
-  { code: "C95", desc: "Лейкоз неуточненного клеточного типа" },
-  { code: "C96", desc: "Другие и неуточненные злокачественные новообразования лимфоидной, кроветворной и родственных им тканей" },
   { code: "D03", desc: "Меланома in situ" },
-  { code: "D03.0", desc: "Меланома in situ губы" },
-  { code: "D03.1", desc: "Меланома in situ века, включая спайку век" },
-  { code: "D03.2", desc: "Меланома in situ уха и наружного слухового прохода" },
-  { code: "D03.3", desc: "Меланома in situ других и неуточненных частей лица" },
-  { code: "D03.4", desc: "Меланома in situ волосистой части головы и шеи" },
-  { code: "D03.5", desc: "Меланома in situ туловища" },
-  { code: "D03.6", desc: "Меланома in situ верхней конечности, включая область плечевого пояса" },
-  { code: "D03.7", desc: "Меланома in situ нижней конечности, включая тазобедренную область" },
-  { code: "D03.9", desc: "Меланома in situ неуточненная" },
-];
-
-const HISTOLOGY_TYPES = [
-  "Поверхностно-распространяющаяся меланома",
-  "Узловая меланома",
-  "Лентиго-меланома",
-  "Акральная лентигинозная меланома",
-  "Десмопластическая меланома",
-  "Аденокарцинома",
-  "Плоскоклеточный рак",
-  "Мелкоклеточный рак",
-  "Крупноклеточный рак",
-  "Недифференцированный рак",
-  "Переходноклеточный рак",
-  "Светлоклеточный рак",
-  "Папиллярная аденокарцинома",
-  "Муцинозная аденокарцинома",
-  "Лобулярный рак",
-  "Протоковый рак",
-  "Меланома без первично выявленного очага",
-  "Другой тип",
 ];
 
 const DIAGNOSIS_TYPES = ["Основной 1", "Основной 2", "Осложнение", "Сопутствующий", "Фоновый"];
@@ -177,13 +76,17 @@ export default function CaseInfoForm({ data, onChange }) {
   const diagnoses = data.diagnoses || [{ type: "Основной 1", text: "" }];
   const [mkbLoading, setMkbLoading] = useState(false);
   const [mkbSuggestion, setMkbSuggestion] = useState(null);
-  const [mkbQuery, setMkbQuery] = useState(data.mkb_code ? `${data.mkb_code} — ${data.mkb_description}` : "");
   const [mkbSearch, setMkbSearch] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [clarifications, setClarifications] = useState({});
   const [detectedOncology, setDetectedOncology] = useState(null);
 
-  // Определяем нозологию при изменении диагноза
+  // Document upload & AI extraction
+  const fileInputRef = useRef(null);
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const [extractingData, setExtractingData] = useState(false);
+  const [uploadedDoc, setUploadedDoc] = useState(null);
+
   useEffect(() => {
     const allText = (data.diagnoses || []).map(d => d.text).filter(Boolean).join(" ");
     const detected = detectOncologyType(allText);
@@ -206,7 +109,6 @@ export default function CaseInfoForm({ data, onChange }) {
 
   const handleMkbSelect = (code, desc) => {
     onChange({ ...data, mkb_code: code, mkb_description: desc });
-    setMkbQuery(`${code} — ${desc}`);
     setMkbSearch("");
     setShowDropdown(false);
     setMkbSuggestion(null);
@@ -220,7 +122,6 @@ export default function CaseInfoForm({ data, onChange }) {
     setMkbSuggestion(null);
 
     const codesList = MKB_CODES.map(m => `- ${m.code}: ${m.desc}`).join("\n");
-
     const clarificationText = Object.entries(extraClarifications)
       .filter(([, v]) => v?.trim())
       .map(([k, v]) => `- ${k}: ${v}`)
@@ -236,10 +137,10 @@ ${codesList}
 
 Ответь строго в формате JSON:
 {
-  "code": "ТОЧНЫЙ КОД (максимально специфичный из списка)",
+  "code": "ТОЧНЫЙ КОД",
   "description": "ОПИСАНИЕ КОДА ИЗ СПИСКА",
-  "reasoning": "ОБОСНОВАНИЕ со ссылкой ТОЛЬКО на rosoncoweb.ru или cr.minzdrav.gov.ru (никаких других доменов)",
-  "missing_params": ["параметр 1 (краткое название вопроса)"] или [],
+  "reasoning": "ОБОСНОВАНИЕ",
+  "missing_params": ["параметр 1"] или [],
   "needs_clarification": true или false
 }`;
 
@@ -262,13 +163,119 @@ ${codesList}
     setMkbLoading(false);
   };
 
-  const handleClarificationChange = (param, value) => {
-    setClarifications(prev => ({ ...prev, [param]: value }));
+  // Upload & AI-extract document data
+  const handleDocUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploadingFile(true);
+
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    setUploadedDoc({ name: file.name, url: file_url });
+    setUploadingFile(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+
+    // Immediately run AI extraction
+    await runAiExtraction(file_url, file.name);
   };
 
-  const handleClarificationSubmit = () => {
-    handleAiMkbSuggest(clarifications);
-    setClarifications({});
+  const runAiExtraction = async (fileUrl, fileName) => {
+    setExtractingData(true);
+
+    const prompt = `Ты — медицинский эксперт-онколог. Из приложенного медицинского документа (выписка, протокол, история болезни) извлеки все данные клинического случая.
+
+Извлеки МАКСИМУМ информации из документа для следующих полей:
+- Номер случая (если есть)
+- Формулировка диагноза (полная)
+- Тип диагноза (основной, осложнение, сопутствующий и т.д.)
+- Код МКБ-10 (если указан)
+- Стадия опухоли (TNM и/или общая стадия)
+- T стадия, N стадия, M стадия (раздельно)
+- ИГХ / иммуногистохимия
+- Молекулярные маркеры (BRAF, KRAS, HER2, EGFR, BRCA1/2, PIK3CA, MSI, PD-L1 и любые другие)
+- Все специфические онкологические параметры (HER2 статус, ER/PR статус, Ki-67, FIGO стадия, Глисон и т.д.)
+- Выполненная диагностика (каждое обследование: название, дата если есть, результат)
+- Проведённое лечение (тип, схема/детали, даты если есть, результат/ответ)
+- Побочные эффекты
+- Исходы
+
+Верни JSON с максимально полными данными. Если данных нет — оставь пустую строку или пустой массив.`;
+
+    const result = await base44.integrations.Core.InvokeLLM({
+      prompt,
+      file_urls: [fileUrl],
+      response_json_schema: {
+        type: "object",
+        properties: {
+          case_number: { type: "string" },
+          diagnoses: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                type: { type: "string" },
+                text: { type: "string" },
+              }
+            }
+          },
+          mkb_code: { type: "string" },
+          mkb_description: { type: "string" },
+          tumor_stage: { type: "string" },
+          t_stage: { type: "string" },
+          n_stage: { type: "string" },
+          m_stage: { type: "string" },
+          immunohistochemistry: { type: "string" },
+          molecular_markers: { type: "string" },
+          oncology_specific_fields: { type: "object", additionalProperties: true },
+          diagnostics_performed: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                name: { type: "string" },
+                date: { type: "string" },
+                result: { type: "string" },
+              }
+            }
+          },
+          treatment_performed: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                type: { type: "string" },
+                details: { type: "string" },
+                start_date: { type: "string" },
+                end_date: { type: "string" },
+                result: { type: "string" },
+              }
+            }
+          },
+          side_effects: { type: "string" },
+          outcomes: { type: "string" },
+        }
+      }
+    });
+
+    // Merge extracted data into form
+    const merged = { ...data };
+    if (result.case_number) merged.case_number = result.case_number;
+    if (result.diagnoses?.length > 0) merged.diagnoses = result.diagnoses;
+    if (result.mkb_code) { merged.mkb_code = result.mkb_code; merged.mkb_description = result.mkb_description || ""; }
+    if (result.tumor_stage) merged.tumor_stage = result.tumor_stage;
+    if (result.t_stage) merged.t_stage = result.t_stage;
+    if (result.n_stage) merged.n_stage = result.n_stage;
+    if (result.m_stage) merged.m_stage = result.m_stage;
+    if (result.immunohistochemistry) merged.immunohistochemistry = result.immunohistochemistry;
+    if (result.molecular_markers) merged.molecular_markers = result.molecular_markers;
+    if (result.oncology_specific_fields && Object.keys(result.oncology_specific_fields).length > 0) {
+      merged.oncology_specific_fields = { ...(merged.oncology_specific_fields || {}), ...result.oncology_specific_fields };
+    }
+    // Store extracted diagnostics/treatments for step 2
+    if (result.diagnostics_performed?.length > 0) merged._extracted_diagnostics = result.diagnostics_performed;
+    if (result.treatment_performed?.length > 0) merged._extracted_treatments = result.treatment_performed;
+
+    onChange(merged);
+    setExtractingData(false);
   };
 
   const filteredCodes = mkbSearch.length >= 2
@@ -280,6 +287,65 @@ ${codesList}
 
   return (
     <div className="space-y-6">
+
+      {/* Document upload */}
+      <div className="bg-indigo-50/70 rounded-2xl p-5 border border-indigo-100">
+        <h3 className="text-sm font-semibold text-indigo-800 mb-1 flex items-center gap-2">
+          <Upload className="w-4 h-4" />
+          Загрузить документ (выписка, протокол)
+        </h3>
+        <p className="text-xs text-indigo-500 mb-3">
+          ИИ автоматически извлечёт все данные: диагноз, МКБ, маркеры, диагностику, лечение и т.д.
+        </p>
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg"
+          onChange={handleDocUpload}
+          className="hidden"
+        />
+
+        {uploadedDoc ? (
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 bg-white text-indigo-700 border border-indigo-200 rounded-lg px-3 py-1.5 text-sm flex-1">
+              <FileText className="w-4 h-4 flex-shrink-0" />
+              <span className="truncate">{uploadedDoc.name}</span>
+              <button onClick={() => setUploadedDoc(null)} className="ml-auto hover:text-red-500 transition-colors">
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+            {extractingData && (
+              <div className="flex items-center gap-2 text-xs text-indigo-600">
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ИИ извлекает данные...
+              </div>
+            )}
+          </div>
+        ) : (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploadingFile || extractingData}
+            className="rounded-xl border-indigo-200 text-indigo-600 hover:bg-indigo-100 hover:border-indigo-300 h-9"
+          >
+            {uploadingFile ? (
+              <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Загрузка...</>
+            ) : (
+              <><Upload className="w-4 h-4 mr-2" />Прикрепить документ</>
+            )}
+          </Button>
+        )}
+
+        {extractingData && (
+          <div className="mt-3 flex items-center gap-2 text-xs text-indigo-600 bg-indigo-100 rounded-lg px-3 py-2">
+            <Loader2 className="w-3.5 h-3.5 animate-spin flex-shrink-0" />
+            ИИ анализирует документ и заполняет поля автоматически...
+          </div>
+        )}
+      </div>
+
       {/* Unique case number */}
       <div className="space-y-2">
         <Label className="text-sm font-medium text-gray-700">Уникальный номер случая</Label>
@@ -358,7 +424,6 @@ ${codesList}
           </Button>
         </div>
 
-        {/* AI suggestion */}
         {mkbSuggestion && (
           <div className={`border rounded-xl p-3 space-y-2 ${mkbSuggestion.needs_clarification ? "bg-amber-50 border-amber-200" : "bg-indigo-50 border-indigo-200"}`}>
             <div className="flex items-start justify-between gap-3">
@@ -379,28 +444,23 @@ ${codesList}
             </div>
             {mkbSuggestion.needs_clarification && mkbSuggestion.missing_params?.length > 0 && (
               <div className="bg-amber-100 rounded-lg p-2.5 space-y-2">
-                <p className="text-xs font-semibold text-amber-800">Для точного определения кода по документу МКБ-10 (rosoncoweb.ru) уточните:</p>
-                <div className="space-y-2">
-                  {mkbSuggestion.missing_params.map((p, i) => (
-                    <div key={i} className="space-y-1">
-                      <label className="text-xs text-amber-800 font-medium flex items-center gap-1.5">
-                        <span className="w-1 h-1 rounded-full bg-amber-500 flex-shrink-0 inline-block mt-0.5" />
-                        {p}
-                      </label>
-                      <input
-                        type="text"
-                        value={clarifications[p] || ""}
-                        onChange={(e) => handleClarificationChange(p, e.target.value)}
-                        placeholder="Введите уточнение..."
-                        className="w-full text-xs rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-amber-400"
-                      />
-                    </div>
-                  ))}
-                </div>
+                <p className="text-xs font-semibold text-amber-800">Уточните:</p>
+                {mkbSuggestion.missing_params.map((p, i) => (
+                  <div key={i} className="space-y-1">
+                    <label className="text-xs text-amber-800 font-medium">{p}</label>
+                    <input
+                      type="text"
+                      value={clarifications[p] || ""}
+                      onChange={(e) => setClarifications(prev => ({ ...prev, [p]: e.target.value }))}
+                      placeholder="Введите уточнение..."
+                      className="w-full text-xs rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-amber-400"
+                    />
+                  </div>
+                ))}
                 <button
-                  onClick={handleClarificationSubmit}
-                  disabled={mkbLoading || !mkbSuggestion.missing_params.some(p => clarifications[p]?.trim())}
-                  className="w-full flex items-center justify-center gap-1.5 text-xs font-medium text-white bg-amber-500 hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed px-3 py-1.5 rounded-lg transition-colors"
+                  onClick={() => { handleAiMkbSuggest(clarifications); setClarifications({}); }}
+                  disabled={mkbLoading}
+                  className="w-full flex items-center justify-center gap-1.5 text-xs font-medium text-white bg-amber-500 hover:bg-amber-600 disabled:opacity-50 px-3 py-1.5 rounded-lg transition-colors"
                 >
                   {mkbLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
                   Уточнить и подобрать код
@@ -410,14 +470,11 @@ ${codesList}
           </div>
         )}
 
-        {/* Search input */}
         <div className="relative">
           <Input
             value={data.mkb_code ? `${data.mkb_code} — ${data.mkb_description}` : mkbSearch}
             onChange={(e) => {
-              if (data.mkb_code) {
-                onChange({ ...data, mkb_code: "", mkb_description: "" });
-              }
+              if (data.mkb_code) onChange({ ...data, mkb_code: "", mkb_description: "" });
               setMkbSearch(e.target.value);
               setShowDropdown(true);
             }}
@@ -455,21 +512,6 @@ ${codesList}
           onChange={onChange}
         />
       )}
-
-      {/* Histology */}
-      <div className="space-y-2">
-        <Label className="text-sm font-medium text-gray-700">Гистологический тип</Label>
-        <select
-          value={data.histology || ""}
-          onChange={(e) => update("histology", e.target.value)}
-          className="w-full h-9 rounded-xl border border-gray-200 bg-white px-3 py-1 text-sm text-gray-800 focus:outline-none focus:ring-1 focus:ring-indigo-400"
-        >
-          <option value="">Выберите тип</option>
-          {HISTOLOGY_TYPES.map(h => (
-            <option key={h} value={h}>{h}</option>
-          ))}
-        </select>
-      </div>
     </div>
   );
 }
