@@ -56,70 +56,95 @@ export default function Analysis() {
 
     const guidelineUrl = findGuidelineUrl(caseData.mkb_code);
 
-    const diagnosticsList = (caseData.diagnostics_performed || [])
-      .map((d, i) => `${i + 1}. [ДИАГНОСТИКА] ${d.name}${d.custom_name ? ` (${d.custom_name})` : ""}${d.date ? `, дата: ${d.date}` : ""}: ${d.result || "результат не указан"}`)
-      .join("\n");
-
-    const treatmentsList = (caseData.treatment_performed || [])
-      .map((t, i) => `${i + 1}. [ЛЕЧЕНИЕ] ${t.type}${t.custom_type ? ` (${t.custom_type})` : ""}${t.start_date ? `, начало: ${t.start_date}` : ""}${t.end_date ? `, конец: ${t.end_date}` : ""}: ${t.details || ""}${t.result ? ` → результат: ${t.result}` : ""}`)
-      .join("\n");
-
-    const prompt = `Ты — строго нормативный AI-эксперт по онкологии. Проведи полный анализ клинического случая по рекомендациям RUSSCO, Минздрав РФ и NCCN.
-
-РАЗРЕШЁННЫЕ ДОМЕНЫ:
-1. cr.minzdrav.gov.ru — клинические рекомендации Минздрава РФ
-2. rosoncoweb.ru — рекомендации RUSSCO
-3. nccn.org — рекомендации NCCN
-
-ДАННЫЕ СЛУЧАЯ:
-Диагноз: ${caseData.diagnosis_text || "не указан"}
+    const caseContext = `Диагноз: ${caseData.diagnosis_text || "не указан"}
 Код МКБ-10: ${caseData.mkb_code || "не указан"}${guidelineUrl ? `\nСсылка Минздрава: ${guidelineUrl}` : ""}
 Стадия: T${caseData.t_stage || "?"} N${caseData.n_stage || "?"} M${caseData.m_stage || "?"}, стадия ${caseData.tumor_stage || "?"}
 ИГХ: ${caseData.immunohistochemistry || "не указана"}
 Молекулярные маркеры: ${caseData.molecular_markers || "не указаны"}
-${Object.keys(caseData.oncology_specific_fields || {}).length > 0 ? `Специфические параметры:\n${Object.entries(caseData.oncology_specific_fields).map(([k, v]) => `- ${k}: ${v}`).join("\n")}` : ""}
+${Object.keys(caseData.oncology_specific_fields || {}).length > 0 ? `Специфические параметры:\n${Object.entries(caseData.oncology_specific_fields).map(([k, v]) => `- ${k}: ${v}`).join("\n")}` : ""}`;
 
-ВСЯ ВЫПОЛНЕННАЯ ДИАГНОСТИКА (с начала заболевания):
-${diagnosticsList || "не указана"}
+    const diagnosticsList = (caseData.diagnostics_performed || [])
+      .map((d, i) => `${i + 1}. ${d.name}${d.custom_name ? ` (${d.custom_name})` : ""}${d.date ? `, дата: ${d.date}` : ""}: ${d.result || "результат не указан"}`)
+      .join("\n");
 
-ВСЁ ПРОВЕДЁННОЕ ЛЕЧЕНИЕ (с начала заболевания):
-${treatmentsList || "не указано"}
+    const treatmentsList = (caseData.treatment_performed || [])
+      .map((t, i) => `${i + 1}. ${t.type}${t.custom_type ? ` (${t.custom_type})` : ""}${t.start_date ? `, начало: ${t.start_date}` : ""}${t.end_date ? `, конец: ${t.end_date}` : ""}: ${t.details || ""}${t.result ? ` → результат: ${t.result}` : ""}`)
+      .join("\n");
 
-ОБЯЗАТЕЛЬНОЕ ЗАДАНИЕ:
-1. КАЖДЫЙ пункт из списков диагностики и лечения выше ДОЛЖЕН получить свой статус. Ни один пункт не должен быть пропущен.
-2. Для каждого пункта создай отдельную запись в analysis_items со статусом:
-   - "рекомендовано" — соответствует протоколу
-   - "сомнительно" — частичное соответствие или спорно
-   - "не_рекомендовано" — противоречит протоколу или устарело
-3. В поле "item" точно укажи название пункта из списка выше.
-4. В поле "analysis_type" укажи "диагностика" или "лечение".
-5. В поле "source" укажи "RUSSCO", "Минздрав" или "NCCN".
-6. В поле "source_reference" укажи реальный URL только из cr.minzdrav.gov.ru/preview-cr/..., rosoncoweb.ru/standarts/ или nccn.org/guidelines/. НЕ придумывай URL.
-7. В поле "comment" дай конкретный комментарий со ссылкой на раздел документа.
+    const jsonInstruction = `Верни ТОЛЬКО валидный компактный JSON (без переносов внутри строк) в формате:
+{"items":[{"item":"название","status":"рекомендовано","comment":"краткий комментарий","source":"Минздрав","source_reference":"https://cr.minzdrav.gov.ru/..."}],"missing":[{"item":"название","recommendation":"кратко","source_reference":"url"}]}`;
 
-Дополнительно в missing_items укажи всё, что по протоколу необходимо было сделать, но НЕ было сделано (диагностика или лечение которые отсутствуют в списках выше).
+    // Run diagnostics and treatment analysis in parallel
+    const [diagResult, treatResult, summaryResult] = await Promise.all([
+      diagnosticsList ? base44.integrations.Core.InvokeLLM({
+        prompt: `Ты — AI-эксперт по онкологии. Проверь КАЖДЫЙ пункт диагностики на соответствие протоколам (RUSSCO, Минздрав РФ, NCCN).
 
-overall_compliance: "высокое" / "среднее" / "низкое"
-summary: краткое клиническое заключение (3-5 предложений)`;
+${caseContext}
 
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt: prompt + `\n\nВерни ТОЛЬКО валидный JSON без лишних символов в формате:
-{"analysis_items":[{"item":"...","status":"рекомендовано|сомнительно|не_рекомендовано","analysis_type":"диагностика|лечение","source":"RUSSCO|Минздрав|NCCN","evidence_level":"...","comment":"...","source_reference":"...","source_text":"..."}],"missing_items":[{"item":"...","recommendation":"...","analysis_type":"диагностика|лечение","source_reference":"..."}],"overall_compliance":"высокое|среднее|низкое","summary":"..."}`,
-      add_context_from_internet: true,
-      response_json_schema: {
-        type: "object",
-        properties: {
-          analysis_items: { type: "array", items: { type: "object" } },
-          missing_items: { type: "array", items: { type: "object" } },
-          overall_compliance: { type: "string" },
-          summary: { type: "string" }
-        }
-      }
-    });
+ВЫПОЛНЕННАЯ ДИАГНОСТИКА:
+${diagnosticsList}
+
+Для КАЖДОГО пункта диагностики выше укажи:
+- item: точное название
+- status: "рекомендовано" / "сомнительно" / "не_рекомендовано"
+- comment: краткий (1-2 предложения) комментарий по протоколу
+- source: "RUSSCO" или "Минздрав" или "NCCN"
+- source_reference: реальный URL из cr.minzdrav.gov.ru/preview-cr/... или rosoncoweb.ru/standarts/ или nccn.org/guidelines/
+
+В missing — диагностика которую надо было сделать но не сделали.
+
+${jsonInstruction}`,
+        add_context_from_internet: true,
+        response_json_schema: { type: "object", properties: { items: { type: "array", items: { type: "object" } }, missing: { type: "array", items: { type: "object" } } } }
+      }) : Promise.resolve({ items: [], missing: [] }),
+
+      treatmentsList ? base44.integrations.Core.InvokeLLM({
+        prompt: `Ты — AI-эксперт по онкологии. Проверь КАЖДЫЙ пункт лечения на соответствие протоколам (RUSSCO, Минздрав РФ, NCCN).
+
+${caseContext}
+
+ПРОВЕДЁННОЕ ЛЕЧЕНИЕ:
+${treatmentsList}
+
+Для КАЖДОГО пункта лечения выше укажи:
+- item: точное название
+- status: "рекомендовано" / "сомнительно" / "не_рекомендовано"
+- comment: краткий (1-2 предложения) комментарий по протоколу
+- source: "RUSSCO" или "Минздрав" или "NCCN"
+- source_reference: реальный URL из cr.minzdrav.gov.ru/preview-cr/... или rosoncoweb.ru/standarts/ или nccn.org/guidelines/
+
+В missing — лечение которое надо было провести но не провели.
+
+${jsonInstruction}`,
+        add_context_from_internet: true,
+        response_json_schema: { type: "object", properties: { items: { type: "array", items: { type: "object" } }, missing: { type: "array", items: { type: "object" } } } }
+      }) : Promise.resolve({ items: [], missing: [] }),
+
+      base44.integrations.Core.InvokeLLM({
+        prompt: `Ты — AI-эксперт по онкологии. Дай краткое клиническое заключение (3-4 предложения) и оцени общее соответствие протоколам.
+
+${caseContext}
+
+Диагностика: ${diagnosticsList || "не указана"}
+Лечение: ${treatmentsList || "не указано"}
+
+Верни JSON: {"overall_compliance":"высокое|среднее|низкое","summary":"заключение 3-4 предложения"}`,
+        add_context_from_internet: false,
+        response_json_schema: { type: "object", properties: { overall_compliance: { type: "string" }, summary: { type: "string" } } }
+      })
+    ]);
+
+    const diagItems = (diagResult?.items || []).map(i => ({ ...i, analysis_type: "диагностика" }));
+    const treatItems = (treatResult?.items || []).map(i => ({ ...i, analysis_type: "лечение" }));
+    const diagMissing = (diagResult?.missing || []).map(i => ({ ...i, analysis_type: "диагностика" }));
+    const treatMissing = (treatResult?.missing || []).map(i => ({ ...i, analysis_type: "лечение" }));
 
     const analysis = await base44.entities.AnalysisResult.create({
       clinical_case_id: caseId,
-      ...result,
+      analysis_items: [...diagItems, ...treatItems],
+      missing_items: [...diagMissing, ...treatMissing],
+      overall_compliance: summaryResult?.overall_compliance || "среднее",
+      summary: summaryResult?.summary || "",
     });
 
     setAnalysisResult(analysis);
