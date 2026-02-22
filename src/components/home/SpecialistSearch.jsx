@@ -112,7 +112,19 @@ ${uploadedFileUrl ? "\n[К запросу приложен документ — 
       ...(uploadedFileUrl?.type === "image" && { file_urls: [uploadedFileUrl.url] }),
     });
 
-    setAnswer(res);
+    // Normalize flat structure to expected shape
+    const normalized = {
+      key_data: {
+        diagnosis: res.diagnosis,
+        molecular_markers: res.molecular_markers,
+        previous_treatment: res.previous_treatment,
+        current_line: res.current_line,
+      },
+      compliance_items: res.compliance_items || [],
+      recommendation: res.recommendation,
+      sources: res.sources || [],
+    };
+    setAnswer(normalized);
     setLoading(false);
   };
 
