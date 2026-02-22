@@ -201,10 +201,50 @@ ${codesList}
 
 Верни JSON с максимально полными данными. Если данных нет — оставь пустую строку или пустой массив.`;
 
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt,
-      file_urls: [fileUrl],
-      response_json_schema: {
+    // Use file_urls only for image files; for docx/pdf use ExtractDataFromUploadedFile
+    const isImage = /\.(png|jpg|jpeg|gif|webp)$/i.test(fileName);
+
+    let result;
+    if (isImage) {
+      result = await base44.integrations.Core.InvokeLLM({
+        prompt,
+        file_urls: [fileUrl],
+        response_json_schema: {
+          type: "object",
+          properties: {
+            case_number: { type: "string" },
+            diagnoses: { type: "array", items: { type: "object", properties: { type: { type: "string" }, text: { type: "string" } } } },
+            mkb_code: { type: "string" },
+            mkb_description: { type: "string" },
+            tumor_stage: { type: "string" },
+            t_stage: { type: "string" },
+            n_stage: { type: "string" },
+            m_stage: { type: "string" },
+            immunohistochemistry: { type: "string" },
+            molecular_markers: { type: "string" },
+            oncology_specific_fields: { type: "object", additionalProperties: true },
+            diagnostics_performed: { type: "array", items: { type: "object", properties: { name: { type: "string" }, date: { type: "string" }, result: { type: "string" } } } },
+            treatment_performed: { type: "array", items: { type: "object", properties: { type: { type: "string" }, details: { type: "string" }, start_date: { type: "string" }, end_date: { type: "string" }, result: { type: "string" } } } },
+            side_effects: { type: "string" },
+            outcomes: { type: "string" },
+          }
+        }
+      });
+    } else {
+      // For docx/pdf/txt — extract text first then pass to LLM
+      const extracted = await base44.integrations.Core.ExtractDataFromUploadedFile({
+        file_url: fileUrl,
+        json_schema: {
+          type: "object",
+          properties: {
+            text: { type: "string", description: "Full text content of the document" }
+          }
+        }
+      });
+      const docText = extracted?.output?.text || JSON.stringify(extracted?.output || "");
+      result = await base44.integrations.Core.InvokeLLM({
+        prompt: prompt + `\n\nСодержимое документа:\n${docText}`,
+        response_json_schema: {
         type: "object",
         properties: {
           case_number: { type: "string" },
