@@ -206,14 +206,26 @@ ${caseContext}
   const allItems = analysisResult?.analysis_items || [];
   const normalizeType = (val) => (val || "").toLowerCase().trim();
 
+  // Determine item category by analysis_type field OR by item content keywords
+  const getItemCategory = (item) => {
+    const t = normalizeType(item.analysis_type);
+    if (t.includes("лечени") || t.includes("treatment") || t === "лечение") return "лечение";
+    if (t.includes("диагностик") || t.includes("diagnostic")) return "диагностика";
+    // Fallback: guess by item name keywords
+    const name = (item.item || item.name || "").toLowerCase();
+    if (/химио|иммун|таргет|операц|хирург|лучев|паллиат|монотерап|схема|курс/.test(name)) return "лечение";
+    if (/биопс|гистол|игх|пэт|ктс|ктм|мрт|узи|рентген|мги|анализ|маркер|тмб|mss|мутац/.test(name)) return "диагностика";
+    return t || "неизвестно";
+  };
+
   const filteredItems = allItems.filter(item => {
     const srcOk = activeSection === "all" || (item.source || "").toLowerCase().includes(activeSection.toLowerCase());
-    const catOk = activeCategory === "all" || normalizeType(item.analysis_type).includes(normalizeType(activeCategory));
+    const catOk = activeCategory === "all" || getItemCategory(item) === activeCategory;
     return srcOk && catOk;
   });
 
   const filteredMissing = (analysisResult?.missing_items || []).filter(item => {
-    return activeCategory === "all" || normalizeType(item.analysis_type).includes(normalizeType(activeCategory));
+    return activeCategory === "all" || getItemCategory(item) === activeCategory;
   });
 
   // Case summary fields
