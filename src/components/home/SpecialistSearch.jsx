@@ -97,26 +97,13 @@ ${uploadedFileUrl ? "\n[К запросу приложен документ — 
       response_json_schema: {
         type: "object",
         properties: {
-          key_data: {
-            type: "object",
-            properties: {
-              diagnosis: { type: "string" },
-              molecular_markers: { type: "string" },
-              previous_treatment: { type: "string" },
-              current_line: { type: "string" },
-            },
-          },
+          diagnosis: { type: "string" },
+          molecular_markers: { type: "string" },
+          previous_treatment: { type: "string" },
+          current_line: { type: "string" },
           compliance_items: {
             type: "array",
-            items: {
-              type: "object",
-              properties: {
-                aspect: { type: "string" },
-                status: { type: "string" },
-                guideline_text: { type: "string" },
-                comment: { type: "string" },
-              },
-            },
+            items: { type: "object" },
           },
           recommendation: { type: "string" },
           sources: { type: "array", items: { type: "string" } },
