@@ -132,7 +132,7 @@ ${uploadedFileUrl ? "\n[К запросу приложен документ — 
                   </div>
                   <div>
                     <div className="text-sm font-semibold text-slate-800">Умный справочник</div>
-                    <div className="text-xs text-slate-400">МЗ РФ · NCCN · ESMO</div>
+                    <div className="text-xs text-slate-400">МЗ РФ · RUSSCO · NCCN</div>
                   </div>
                 </div>
                 <button onClick={() => setOpen(false)} className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors">
