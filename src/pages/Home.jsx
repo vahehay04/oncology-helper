@@ -82,7 +82,7 @@ function SpecialistDashboard({ onMode, activeMode, onBack }) {
             </div>
             <div>
               <h2 className="text-lg font-semibold text-slate-800">Умный справочник</h2>
-              <p className="text-xs text-slate-400">Только клинические рекомендации МЗ РФ / NCCN / ESMO</p>
+              <p className="text-xs text-slate-400">Только клинические рекомендации МЗ РФ / NCCN / RUSSCO</p>
             </div>
           </div>
           <SpecialistSearch />
@@ -104,7 +104,7 @@ function SpecialistDashboard({ onMode, activeMode, onBack }) {
             </div>
             <div>
               <h2 className="text-lg font-semibold text-slate-800">ИИ-ассистент</h2>
-              <p className="text-xs text-slate-400">Только клинические рекомендации МЗ РФ / NCCN / ESMO</p>
+              <p className="text-xs text-slate-400">Только клинические рекомендации МЗ РФ / NCCN / RUSSCO</p>
             </div>
           </div>
           <SpecialistSearch />
