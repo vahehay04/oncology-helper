@@ -181,91 +181,49 @@ ${codesList}
   const runAiExtraction = async (fileUrl, fileName) => {
     setExtractingData(true);
 
-    const prompt = `Ты — медицинский эксперт-онколог. Из приложенного медицинского документа (выписка, протокол, история болезни) извлеки все данные клинического случая.
-Содержимое файла: ${fileName}
+    const extractionSchema = {
+      type: "object",
+      properties: {
+        case_number: { type: "string" },
+        diagnoses: { type: "array", items: { type: "object", properties: { type: { type: "string" }, text: { type: "string" } } } },
+        mkb_code: { type: "string" },
+        mkb_description: { type: "string" },
+        tumor_stage: { type: "string" },
+        t_stage: { type: "string" },
+        n_stage: { type: "string" },
+        m_stage: { type: "string" },
+        immunohistochemistry: { type: "string" },
+        molecular_markers: { type: "string" },
+        oncology_specific_fields: { type: "object", additionalProperties: true },
+        diagnostics_performed: { type: "array", items: { type: "object", properties: { name: { type: "string" }, date: { type: "string" }, result: { type: "string" } } } },
+        treatment_performed: { type: "array", items: { type: "object", properties: { type: { type: "string" }, details: { type: "string" }, start_date: { type: "string" }, end_date: { type: "string" }, result: { type: "string" } } } },
+        side_effects: { type: "string" },
+        outcomes: { type: "string" },
+      }
+    };
 
-Извлеки МАКСИМУМ информации из документа для следующих полей:
-- Номер случая (если есть)
-- Формулировка диагноза (полная)
-- Тип диагноза (основной, осложнение, сопутствующий и т.д.)
-- Код МКБ-10 (если указан)
-- Стадия опухоли (TNM и/или общая стадия)
-- T стадия, N стадия, M стадия (раздельно)
-- ИГХ / иммуногистохимия
-- Молекулярные маркеры (BRAF, KRAS, HER2, EGFR, BRCA1/2, PIK3CA, MSI, PD-L1 и любые другие)
-- Все специфические онкологические параметры (HER2 статус, ER/PR статус, Ki-67, FIGO стадия, Глисон и т.д.)
-- Выполненная диагностика (каждое обследование: название, дата если есть, результат)
-- Проведённое лечение (тип, схема/детали, даты если есть, результат/ответ)
-- Побочные эффекты
-- Исходы
+    const basePrompt = `Ты — медицинский эксперт-онколог. Из приложенного медицинского документа извлеки все данные клинического случая: диагноз, МКБ-10, стадию TNM, ИГХ, молекулярные маркеры (HER2, BRCA, PIK3CA, EGFR и др.), диагностику, лечение, побочные эффекты, исходы. Верни JSON. Если данных нет — оставь пустую строку или пустой массив.`;
 
-Верни JSON с максимально полными данными. Если данных нет — оставь пустую строку или пустой массив.`;
-
-    // Use file_urls only for image files; for docx/pdf use ExtractDataFromUploadedFile
     const isImage = /\.(png|jpg|jpeg|gif|webp)$/i.test(fileName);
 
     let result;
     if (isImage) {
       result = await base44.integrations.Core.InvokeLLM({
-        prompt,
+        prompt: basePrompt,
         file_urls: [fileUrl],
-        response_json_schema: {
-          type: "object",
-          properties: {
-            case_number: { type: "string" },
-            diagnoses: { type: "array", items: { type: "object", properties: { type: { type: "string" }, text: { type: "string" } } } },
-            mkb_code: { type: "string" },
-            mkb_description: { type: "string" },
-            tumor_stage: { type: "string" },
-            t_stage: { type: "string" },
-            n_stage: { type: "string" },
-            m_stage: { type: "string" },
-            immunohistochemistry: { type: "string" },
-            molecular_markers: { type: "string" },
-            oncology_specific_fields: { type: "object", additionalProperties: true },
-            diagnostics_performed: { type: "array", items: { type: "object", properties: { name: { type: "string" }, date: { type: "string" }, result: { type: "string" } } } },
-            treatment_performed: { type: "array", items: { type: "object", properties: { type: { type: "string" }, details: { type: "string" }, start_date: { type: "string" }, end_date: { type: "string" }, result: { type: "string" } } } },
-            side_effects: { type: "string" },
-            outcomes: { type: "string" },
-          }
-        }
+        response_json_schema: extractionSchema,
       });
     } else {
-      // For docx/pdf/txt — extract text first then pass to LLM
       const extracted = await base44.integrations.Core.ExtractDataFromUploadedFile({
         file_url: fileUrl,
-        json_schema: {
-          type: "object",
-          properties: {
-            text: { type: "string", description: "Full text content of the document" }
-          }
-        }
+        json_schema: { type: "object", properties: { text: { type: "string" } } }
       });
       const docText = extracted?.output?.text || JSON.stringify(extracted?.output || "");
       result = await base44.integrations.Core.InvokeLLM({
-        prompt: prompt + `\n\nСодержимое документа:\n${docText}`,
-        response_json_schema: {
-        type: "object",
-        properties: {
-          case_number: { type: "string" },
-          diagnoses: { type: "array", items: { type: "object", properties: { type: { type: "string" }, text: { type: "string" } } } },
-          mkb_code: { type: "string" },
-          mkb_description: { type: "string" },
-          tumor_stage: { type: "string" },
-          t_stage: { type: "string" },
-          n_stage: { type: "string" },
-          m_stage: { type: "string" },
-          immunohistochemistry: { type: "string" },
-          molecular_markers: { type: "string" },
-          oncology_specific_fields: { type: "object", additionalProperties: true },
-          diagnostics_performed: { type: "array", items: { type: "object", properties: { name: { type: "string" }, date: { type: "string" }, result: { type: "string" } } } },
-          treatment_performed: { type: "array", items: { type: "object", properties: { type: { type: "string" }, details: { type: "string" }, start_date: { type: "string" }, end_date: { type: "string" }, result: { type: "string" } } } },
-          side_effects: { type: "string" },
-          outcomes: { type: "string" },
-          }
-          }
-          });
-          }
+        prompt: basePrompt + `\n\nСодержимое документа:\n${docText}`,
+        response_json_schema: extractionSchema,
+      });
+    }
 
     // Merge extracted data into form
     const merged = { ...data };
