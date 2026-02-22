@@ -287,7 +287,7 @@ ${caseContext}
             <h3 className="font-semibold text-gray-900">Резюме случая</h3>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-sm">
-            {diagText && <SummaryRow label="Диагноз" value={diagText} />}
+            {diagText && <SummaryRow label="Диагноз" value={diagText.replace(/\[.*?\]\s*/g, "")} />}
             {mkb && <SummaryRow label="Код МКБ-10" value={`${mkb}${clinicalCase.mkb_description ? " — " + clinicalCase.mkb_description : ""}`} />}
             {(clinicalCase.t_stage || clinicalCase.n_stage || clinicalCase.m_stage) && (
               <SummaryRow label="TNM стадия" value={`T${clinicalCase.t_stage || "?"} N${clinicalCase.n_stage || "?"} M${clinicalCase.m_stage || "?"}${clinicalCase.tumor_stage ? " (ст. " + clinicalCase.tumor_stage + ")" : ""}`} />
