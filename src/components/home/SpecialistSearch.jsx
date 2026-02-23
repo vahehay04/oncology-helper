@@ -265,7 +265,9 @@ ${query}${fileContext}
         ...(uploadedFileUrl?.type === "image" && { file_urls: [uploadedFileUrl.url] }),
       });
 
-      setAnswer({ type: "reference", data: res });
+      const result = { type: "reference", data: res };
+      answerCache.set(cacheKey, result);
+      setAnswer(result);
     }
 
     setLoading(false);
