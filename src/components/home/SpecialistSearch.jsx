@@ -208,7 +208,9 @@ ${query}${fileContext}
         ...(uploadedFileUrl?.type === "image" && { file_urls: [uploadedFileUrl.url] }),
       });
 
-      setAnswer({ type: "case", data: res });
+      const result = { type: "case", data: res };
+      answerCache.set(cacheKey, result);
+      setAnswer(result);
     } else {
       // Mode 2: Reference question — detailed answer with exact quotes
       const res = await base44.integrations.Core.InvokeLLM({
