@@ -7,7 +7,7 @@ import { Plus, Trash2, Sparkles, Loader2, Check, Upload, FileText, X } from "luc
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
 import { MKB_SYSTEM_PROMPT } from "@/components/lib/sourcePrompt";
-import { detectOncologyType } from "@/components/case/oncologyFields";
+import { detectOncologyType, ONCOLOGY_FIELD_MAP } from "@/components/case/oncologyFields";
 import OncologySpecificFields from "@/components/case/OncologySpecificFields";
 
 // Расширенный список МКБ-10 для онкологии
