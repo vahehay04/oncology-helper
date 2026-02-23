@@ -53,7 +53,7 @@ export default function NewCase() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Новый клинический случай</h1>
           <p className="text-gray-500 text-sm leading-relaxed max-w-2xl">
-            Заполните данные для анализа соответствия с Клиническими рекомендациями Министерства Здравоохранения Российской Федерации и Международными стандартами (NCCN, ESMO...)
+            Заполните данные для анализа соответствия с Клиническими рекомендациями Министерства Здравоохранения Российской Федерации и международными стандартами (RUSSCO, NCCN)
           </p>
         </motion.div>
 
