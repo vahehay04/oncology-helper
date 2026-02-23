@@ -12,10 +12,18 @@ function isFullClinicalCase(text) {
   return hasDiagnosis && hasStage && hasTreatment;
 }
 
+// Simple in-memory cache: key = query+fileContent hash, value = { type, data }
+const answerCache = new Map();
+
+function getCacheKey(query, fileContext) {
+  return `${query.trim()}||${fileContext.trim()}`;
+}
+
 export default function SpecialistSearch() {
   const [query, setQuery] = useState("");
   const [answer, setAnswer] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [fromCache, setFromCache] = useState(false);
   const [attachedFile, setAttachedFile] = useState(null);
   const [uploadedFileUrl, setUploadedFileUrl] = useState(null);
   const [mode, setMode] = useState(null); // "case" | "reference"
