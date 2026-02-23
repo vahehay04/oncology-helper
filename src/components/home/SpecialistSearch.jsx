@@ -67,72 +67,111 @@ export default function SpecialistSearch() {
     setMode(fullCase ? "case" : "reference");
 
     if (fullCase) {
-      // Mode 1: Full clinical case — extract + compliance with EXACT quotes
+      // Mode 1: Full clinical case — 8-step CDSS algorithm (RUSSCO → NCCN)
       const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `РЕЖИМ: КОНТРОЛИРУЕМЫЙ НОРМАТИВНЫЙ ПОИСК
+        prompt: `РЕЖИМ: КОНТРОЛИРУЕМЫЙ НОРМАТИВНЫЙ ПОИСК — CLINICAL DECISION SUPPORT SYSTEM
 
 ═══════════════════════════════════════════════════════════════
-РАЗРЕШЁННЫЕ ДОМЕНЫ ДЛЯ ПОИСКА (строго в порядке приоритета):
+РАЗРЕШЁННЫЕ ДОМЕНЫ (строго в порядке приоритета):
   1. site:rosoncoweb.ru
   2. site:cr.minzdrav.gov.ru
   3. site:nccn.org
-Переход к следующему домену ТОЛЬКО если на предыдущем информации нет.
+Любые другие домены — ИГНОРИРОВАТЬ. Агрегаторы, зеркала, кэш — ЗАПРЕЩЕНЫ.
 ═══════════════════════════════════════════════════════════════
 
-АЛГОРИТМ ПОИСКА:
-ШАГ 1. Выполни поиск: site:rosoncoweb.ru [тема запроса]
-ШАГ 2. Если результат найден — зафиксируй:
-   - document_url: полный URL страницы
-   - document_name: официальное название документа
-   - document_date: дата редакции (если указана на странице)
-ШАГ 3. Весь дальнейший анализ строится ИСКЛЮЧИТЕЛЬНО на зафиксированном документе.
-ШАГ 4. Если на rosoncoweb.ru не найдено — повторить для cr.minzdrav.gov.ru, затем nccn.org.
-ШАГ 5. Если ни на одном домене не найдено — вывести: "В разрешённых нормативных источниках информация по данному запросу не найдена."
+ТЫ — экспертная онкологическая аналитическая система уровня senior CDSS.
+Работай строго по алгоритму ниже. Не интерпретируй. Копируй дословно.
 
-АБСОЛЮТНЫЕ ЗАПРЕТЫ:
-✗ Любые домены кроме rosoncoweb.ru, cr.minzdrav.gov.ru, nccn.org — ИГНОРИРОВАТЬ.
-✗ Агрегаторы, зеркала, архивы, кэш — ЗАПРЕЩЕНЫ.
-✗ PDF вне указанных доменов — ЗАПРЕЩЕНЫ.
-✗ Знания модели без подтверждённого URL — ЗАПРЕЩЕНЫ.
-✗ Перефразировать или составлять цитаты — ЗАПРЕЩЕНО. Только дословный текст.
-✗ Комбинировать несколько документов без явного указания — ЗАПРЕЩЕНО.
-✗ source_url с других доменов — НЕ ДОПУСКАЕТСЯ.
-
-ТРЕБОВАНИЕ К СТАБИЛЬНОСТИ:
-Если найден тот же URL что и при предыдущем запросе — результат должен быть идентичным.
-
-═══════════════════════════════════════════════════════════════
-КЛИНИЧЕСКИЙ СЛУЧАЙ:
+════════════════════════════════════════════
+КЛИНИЧЕСКИЕ ДАННЫЕ ПАЦИЕНТА:
 ${query}${fileContext}
-═══════════════════════════════════════════════════════════════
+════════════════════════════════════════════
 
-ЗАДАЧА АНАЛИЗА:
-1. Сначала зафиксируй источник (document_url, document_name, document_date).
-2. Извлеки ключевые данные из клинического случая.
-3. Для каждого аспекта: найди в зафиксированном документе конкретный раздел.
-4. "quote" — ДОСЛОВНАЯ ЦИТАТА, слово в слово как в документе. Если не найдена — оставить пустым.
-5. "comment" — совпадает/не совпадает с данными пациента и почему.
-6. "source_url" — ТОЛЬКО с доменов rosoncoweb.ru, cr.minzdrav.gov.ru, nccn.org.
+ШАГ 1 — DIAGNOSIS PROFILE
+Извлеки из клинических данных:
+- тип рака, локализация, гистологический тип
+- стадия TNM (T, N, M), степень дифференцировки
+- наличие метастазов
+- молекулярно-генетические маркеры: HER2, PD-L1, MSI/MMR, EGFR, ALK, ROS1, BRAF, KRAS, NRAS, NTRK и другие
+- предшествующие линии лечения
+- текущая линия лечения
+- статус прогрессирования/рецидива
 
-Статус: "соответствует" / "не соответствует" / "требует уточнения"
+ШАГ 2 — PATIENT TREATMENT PROFILE
+Извлеки полностью из данных пациента:
+- все линии терапии, схемы, препараты, дозировки
+- хирургическое, лучевое, таргетное, иммунотерапевтическое лечение
+
+ШАГ 3 — RUSSCO RECOMMENDED TREATMENT
+Поиск: site:rosoncoweb.ru [тип опухоли + стадия + молекулярный профиль]
+Зафиксируй: document_url, document_name, document_date.
+Извлеки из RUSSCO: все допустимые схемы, обязательные рекомендации, варианты лечения.
+
+ШАГ 4 — СОПОСТАВЛЕНИЕ С RUSSCO
+Сравни PATIENT TREATMENT PROFILE vs RUSSCO RECOMMENDED TREATMENT.
+Раздели на 3 категории:
+- FULL MATCH: лечение полностью соответствует RUSSCO
+- PARTIAL MATCH: частичное соответствие
+- MISSING ELEMENTS: есть в RUSSCO, отсутствует у пациента
+
+ШАГ 5 — MISSING RECOMMENDATIONS FROM RUSSCO (VERBATIM COPY)
+Если есть MISSING ELEMENTS — скопируй отсутствующие абзацы из RUSSCO ДОСЛОВНО, слово в слово.
+ЗАПРЕЩЕНО изменять, перефразировать или интерпретировать.
+
+ШАГ 6-7 — NCCN (только если FULL MATCH с RUSSCO = true)
+Поиск: site:nccn.org [тип опухоли + стадия]
+Зафиксируй источник NCCN. Извлеки NCCN RECOMMENDED TREATMENT.
+Сравни с PATIENT TREATMENT PROFILE → FULL/PARTIAL/MISSING ELEMENTS NCCN.
+Если есть отсутствующие — скопируй дословно из NCCN.
+
+ШАГ 8 — ФИНАЛЬНЫЙ ОТЧЁТ
+
+СТРОГИЕ ПРАВИЛА:
+✗ Никогда не изменяй текст рекомендаций при копировании
+✗ Считай частичное совпадение формулировок — НЕСОВПАДЕНИЕМ
+✗ Работай как clinical audit system, не как консультант
+✗ source_url ТОЛЬКО с: rosoncoweb.ru, cr.minzdrav.gov.ru, nccn.org
 
 Верни JSON:
 {
   "document_url": "https://...",
-  "document_name": "официальное название документа",
-  "document_date": "год/дата редакции или null",
-  "diagnosis": "строка",
-  "molecular_markers": "строка или Не указаны",
-  "previous_treatment": "строка",
-  "current_line": "строка или Не указана",
+  "document_name": "...",
+  "document_date": "...",
+  "diagnosis_profile": {
+    "cancer_type": "", "localization": "", "histology": "", "stage": "",
+    "tnm": {"t": "", "n": "", "m": ""}, "grade": "", "metastases": "",
+    "molecular_markers": {}, "previous_lines": "", "current_line": "", "progression_status": ""
+  },
+  "patient_treatment_profile": "",
+  "russco_recommended_treatment": "",
+  "russco_comparison": {
+    "full_match": false,
+    "partial_match": false,
+    "match_items": [],
+    "missing_items": []
+  },
+  "missing_russco_verbatim": "",
+  "nccn_checked": false,
+  "nccn_document_url": "",
+  "nccn_recommended_treatment": "",
+  "nccn_comparison": {
+    "full_match": false, "partial_match": false, "match_items": [], "missing_items": []
+  },
+  "missing_nccn_verbatim": "",
+  "final_conclusion": {
+    "russco_compliant": false,
+    "nccn_compliant": false,
+    "missing_elements": [],
+    "matching_elements": []
+  },
   "compliance_items": [
     {
-      "aspect": "название аспекта",
+      "aspect": "",
       "status": "соответствует|не соответствует|требует уточнения",
-      "quote": "дословная цитата из документа",
-      "comment": "клинический комментарий",
-      "source_name": "официальное название документа",
-      "source_url": "https://rosoncoweb.ru/... | https://cr.minzdrav.gov.ru/... | https://nccn.org/..."
+      "quote": "дословная цитата",
+      "comment": "",
+      "source_name": "",
+      "source_url": ""
     }
   ]
 }`,
@@ -140,10 +179,20 @@ ${query}${fileContext}
         response_json_schema: {
           type: "object",
           properties: {
-            diagnosis: { type: "string" },
-            molecular_markers: { type: "string" },
-            previous_treatment: { type: "string" },
-            current_line: { type: "string" },
+            document_url: { type: "string" },
+            document_name: { type: "string" },
+            document_date: { type: "string" },
+            diagnosis_profile: { type: "object" },
+            patient_treatment_profile: { type: "string" },
+            russco_recommended_treatment: { type: "string" },
+            russco_comparison: { type: "object" },
+            missing_russco_verbatim: { type: "string" },
+            nccn_checked: { type: "boolean" },
+            nccn_document_url: { type: "string" },
+            nccn_recommended_treatment: { type: "string" },
+            nccn_comparison: { type: "object" },
+            missing_nccn_verbatim: { type: "string" },
+            final_conclusion: { type: "object" },
             compliance_items: { type: "array", items: { type: "object" } },
           },
         },
