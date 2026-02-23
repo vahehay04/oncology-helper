@@ -344,30 +344,68 @@ ${query}${fileContext}
                 </div>
               )}
 
-              {/* Key data */}
-              <div className="bg-white rounded-2xl border border-gray-100 p-5">
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Ключевые данные из запроса</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {[
-                    { label: "Диагноз", value: answer.data.diagnosis },
-                    { label: "Молекулярные маркеры", value: answer.data.molecular_markers },
-                    { label: "Предшествующее лечение", value: answer.data.previous_treatment },
-                    { label: "Текущая линия", value: answer.data.current_line },
-                  ].map(({ label, value }) => value ? (
-                    <div key={label} className="bg-gray-50 rounded-xl px-4 py-3">
-                      <div className="text-xs text-gray-400 mb-0.5">{label}</div>
-                      <div className="text-sm font-medium text-gray-800">{value}</div>
-                    </div>
-                  ) : null)}
-                </div>
-              </div>
-
-              {/* Compliance with EXACT quotes */}
-              {answer.data.compliance_items?.length > 0 && (
+              {/* DIAGNOSIS PROFILE */}
+              {answer.data.diagnosis_profile && (
                 <div className="bg-white rounded-2xl border border-gray-100 p-5">
-                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Соответствие рекомендациям</h3>
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">1. Diagnosis Profile</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {[
+                      { label: "Тип рака / Локализация", value: [answer.data.diagnosis_profile.cancer_type, answer.data.diagnosis_profile.localization].filter(Boolean).join(" — ") },
+                      { label: "Гистология", value: answer.data.diagnosis_profile.histology },
+                      { label: "Стадия", value: answer.data.diagnosis_profile.stage },
+                      { label: "TNM", value: answer.data.diagnosis_profile.tnm ? `T${answer.data.diagnosis_profile.tnm.t || "?"} N${answer.data.diagnosis_profile.tnm.n || "?"} M${answer.data.diagnosis_profile.tnm.m || "?"}` : null },
+                      { label: "Метастазы", value: answer.data.diagnosis_profile.metastases },
+                      { label: "Текущая линия", value: answer.data.diagnosis_profile.current_line },
+                      { label: "Предшествующие линии", value: answer.data.diagnosis_profile.previous_lines },
+                      { label: "Статус прогрессирования", value: answer.data.diagnosis_profile.progression_status },
+                    ].filter(({ value }) => value).map(({ label, value }) => (
+                      <div key={label} className="bg-gray-50 rounded-xl px-4 py-3">
+                        <div className="text-xs text-gray-400 mb-0.5">{label}</div>
+                        <div className="text-sm font-medium text-gray-800">{value}</div>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Molecular markers */}
+                  {answer.data.diagnosis_profile.molecular_markers && Object.keys(answer.data.diagnosis_profile.molecular_markers).length > 0 && (
+                    <div className="mt-3 bg-indigo-50 rounded-xl px-4 py-3">
+                      <div className="text-xs text-gray-400 mb-1">Молекулярные маркеры</div>
+                      <div className="flex flex-wrap gap-2">
+                        {Object.entries(answer.data.diagnosis_profile.molecular_markers).map(([k, v]) => (
+                          <span key={k} className="text-xs bg-white border border-indigo-200 rounded-lg px-2 py-0.5 text-indigo-700 font-medium">{k}: {v}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* PATIENT TREATMENT PROFILE */}
+              {answer.data.patient_treatment_profile && (
+                <div className="bg-white rounded-2xl border border-gray-100 p-5">
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">2. Patient Treatment Profile</h3>
+                  <p className="text-sm text-gray-700 whitespace-pre-line leading-relaxed">{answer.data.patient_treatment_profile}</p>
+                </div>
+              )}
+
+              {/* RUSSCO RECOMMENDED TREATMENT */}
+              {answer.data.russco_recommended_treatment && (
+                <div className="bg-white rounded-2xl border border-gray-100 p-5">
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">3. RUSSCO Recommended Treatment</h3>
+                  <p className="text-sm text-gray-700 whitespace-pre-line leading-relaxed">{answer.data.russco_recommended_treatment}</p>
+                </div>
+              )}
+
+              {/* COMPARISON WITH RUSSCO */}
+              {answer.data.russco_comparison && (
+                <div className="bg-white rounded-2xl border border-gray-100 p-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">4. Comparison with RUSSCO</h3>
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${answer.data.russco_comparison.full_match ? "bg-emerald-100 text-emerald-700" : answer.data.russco_comparison.partial_match ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700"}`}>
+                      {answer.data.russco_comparison.full_match ? "FULL MATCH" : answer.data.russco_comparison.partial_match ? "PARTIAL MATCH" : "MISSING ELEMENTS"}
+                    </span>
+                  </div>
                   <div className="space-y-3">
-                    {answer.data.compliance_items.map((item, i) => {
+                    {answer.data.compliance_items?.map((item, i) => {
                       const cfg = statusConfig[item.status] || statusConfig["требует уточнения"];
                       return (
                         <div key={i} className={`rounded-xl border p-4 ${cfg.bg}`}>
@@ -383,25 +421,107 @@ ${query}${fileContext}
                               «{item.quote}»
                             </blockquote>
                           )}
-                          {item.comment && (
-                            <p className={`text-sm pl-4 ${cfg.text} opacity-90`}>{item.comment}</p>
-                          )}
+                          {item.comment && <p className={`text-sm pl-4 ${cfg.text} opacity-90`}>{item.comment}</p>}
                           {(item.source_name || item.source_url) && (
                             <div className="mt-2 pl-4 flex items-center gap-1 text-xs text-gray-400">
                               <BookOpen className="w-3 h-3 flex-shrink-0" />
                               {item.source_url ? (
-                                <a href={item.source_url} target="_blank" rel="noopener noreferrer" className="underline hover:text-indigo-600 transition-colors">
-                                  {item.source_name || item.source_url}
-                                </a>
-                              ) : (
-                                <span>{item.source_name}</span>
-                              )}
+                                <a href={item.source_url} target="_blank" rel="noopener noreferrer" className="underline hover:text-indigo-600">{item.source_name || item.source_url}</a>
+                              ) : <span>{item.source_name}</span>}
                             </div>
                           )}
                         </div>
                       );
                     })}
                   </div>
+                </div>
+              )}
+
+              {/* MISSING FROM RUSSCO — VERBATIM */}
+              {answer.data.missing_russco_verbatim && (
+                <div className="bg-red-50 border border-red-200 rounded-2xl p-5">
+                  <h3 className="text-xs font-semibold text-red-500 uppercase tracking-wider mb-2">5. Missing Recommendations from RUSSCO (Verbatim)</h3>
+                  <blockquote className="text-sm text-red-800 pl-4 border-l-2 border-red-400 whitespace-pre-line leading-relaxed italic">
+                    {answer.data.missing_russco_verbatim}
+                  </blockquote>
+                </div>
+              )}
+
+              {/* NCCN SECTION */}
+              {answer.data.nccn_checked && (
+                <>
+                  {answer.data.nccn_document_url && (
+                    <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 flex items-start gap-2 text-xs text-slate-600">
+                      <BookOpen className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-slate-400" />
+                      <div><span className="font-semibold text-slate-700">Источник NCCN: </span>
+                        <a href={answer.data.nccn_document_url} target="_blank" rel="noopener noreferrer" className="underline hover:text-indigo-600">{answer.data.nccn_document_url}</a>
+                      </div>
+                    </div>
+                  )}
+                  {answer.data.nccn_recommended_treatment && (
+                    <div className="bg-white rounded-2xl border border-gray-100 p-5">
+                      <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">6. NCCN Recommended Treatment</h3>
+                      <p className="text-sm text-gray-700 whitespace-pre-line leading-relaxed">{answer.data.nccn_recommended_treatment}</p>
+                    </div>
+                  )}
+                  {answer.data.nccn_comparison && (
+                    <div className="bg-white rounded-2xl border border-gray-100 p-5">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">7. Comparison with NCCN</h3>
+                        <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${answer.data.nccn_comparison.full_match ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>
+                          {answer.data.nccn_comparison.full_match ? "FULL MATCH" : "PARTIAL / MISSING"}
+                        </span>
+                      </div>
+                      {answer.data.nccn_comparison.missing_items?.length > 0 && (
+                        <ul className="text-sm text-gray-700 space-y-1">
+                          {answer.data.nccn_comparison.missing_items.map((item, i) => (
+                            <li key={i} className="flex gap-2"><span className="text-red-400">✗</span>{item}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )}
+                  {answer.data.missing_nccn_verbatim && (
+                    <div className="bg-orange-50 border border-orange-200 rounded-2xl p-5">
+                      <h3 className="text-xs font-semibold text-orange-500 uppercase tracking-wider mb-2">8. Missing Recommendations from NCCN (Verbatim)</h3>
+                      <blockquote className="text-sm text-orange-800 pl-4 border-l-2 border-orange-400 whitespace-pre-line leading-relaxed italic">
+                        {answer.data.missing_nccn_verbatim}
+                      </blockquote>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* FINAL CONCLUSION */}
+              {answer.data.final_conclusion && (
+                <div className="bg-slate-900 text-white rounded-2xl p-5">
+                  <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">9. Final Conclusion</h3>
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div className={`rounded-xl p-3 text-center ${answer.data.final_conclusion.russco_compliant ? "bg-emerald-600" : "bg-red-700"}`}>
+                      <div className="text-xs text-white/70 mb-1">RUSSCO</div>
+                      <div className="font-bold text-sm">{answer.data.final_conclusion.russco_compliant ? "Соответствует" : "Не соответствует"}</div>
+                    </div>
+                    <div className={`rounded-xl p-3 text-center ${answer.data.final_conclusion.nccn_compliant ? "bg-emerald-600" : answer.data.nccn_checked ? "bg-red-700" : "bg-slate-700"}`}>
+                      <div className="text-xs text-white/70 mb-1">NCCN</div>
+                      <div className="font-bold text-sm">{answer.data.nccn_checked ? (answer.data.final_conclusion.nccn_compliant ? "Соответствует" : "Не соответствует") : "Не проверялся"}</div>
+                    </div>
+                  </div>
+                  {answer.data.final_conclusion.missing_elements?.length > 0 && (
+                    <div className="mb-3">
+                      <div className="text-xs text-slate-400 mb-1">Отсутствующие элементы:</div>
+                      <ul className="space-y-1">{answer.data.final_conclusion.missing_elements.map((el, i) => (
+                        <li key={i} className="text-sm text-red-300 flex gap-2"><span>✗</span>{el}</li>
+                      ))}</ul>
+                    </div>
+                  )}
+                  {answer.data.final_conclusion.matching_elements?.length > 0 && (
+                    <div>
+                      <div className="text-xs text-slate-400 mb-1">Соответствующие элементы:</div>
+                      <ul className="space-y-1">{answer.data.final_conclusion.matching_elements.map((el, i) => (
+                        <li key={i} className="text-sm text-emerald-300 flex gap-2"><span>✓</span>{el}</li>
+                      ))}</ul>
+                    </div>
+                  )}
                 </div>
               )}
             </>
