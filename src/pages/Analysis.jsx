@@ -54,6 +54,38 @@ export default function Analysis() {
   const runAnalysis = async (caseData) => {
     setAnalyzing(true);
 
+    // Fetch approved cases for few-shot examples
+    const approvedCases = await base44.entities.ClinicalCase.filter({ status: "одобрен" });
+    const approvedAnalyses = await Promise.all(
+      approvedCases.slice(0, 5).map(c =>
+        base44.entities.AnalysisResult.filter({ clinical_case_id: c.id }).then(r => ({ caseData: c, result: r[0] }))
+      )
+    );
+
+    // Find similar approved cases (same MKB prefix or diagnosis keywords)
+    const mkbPrefix = (caseData.mkb_code || "").split(".")[0];
+    const diagWords = (caseData.diagnosis_text || "").toLowerCase().split(/\s+/).filter(w => w.length > 4);
+    const similarApproved = approvedAnalyses
+      .filter(({ caseData: c, result }) => {
+        if (!result) return false;
+        const sameMkb = c.mkb_code && c.mkb_code.startsWith(mkbPrefix);
+        const diagMatch = diagWords.some(w => (c.diagnosis_text || "").toLowerCase().includes(w));
+        return sameMkb || diagMatch;
+      })
+      .slice(0, 2);
+
+    const fewShotExamples = similarApproved.length > 0
+      ? `\n\nПРИМЕРЫ ОДОБРЕННЫХ ВРАЧАМИ АНАЛИЗОВ (используй как эталон структуры и логики):\n` +
+        similarApproved.map(({ caseData: c, result }, idx) => `
+--- ПРИМЕР ${idx + 1} (одобрен врачом) ---
+Диагноз: ${c.diagnosis_text || "не указан"}
+Стадия: T${c.t_stage || "?"}N${c.n_stage || "?"}M${c.m_stage || "?"}
+Заключение: ${result.summary || ""}
+Соответствие: ${result.overall_compliance || ""}
+Пример пункта анализа: ${JSON.stringify((result.analysis_items || []).slice(0, 1))}
+`).join("\n")
+      : "";
+
     const guidelineUrl = findGuidelineUrl(caseData.mkb_code);
 
     const caseContext = `Диагноз: ${caseData.diagnosis_text || "не указан"}
