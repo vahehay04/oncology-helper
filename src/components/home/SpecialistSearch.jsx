@@ -321,6 +321,12 @@ ${query}${fileContext}
       {/* Results */}
       {answer && (
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mt-6 space-y-4">
+          {fromCache && (
+            <div className="flex items-center gap-2 text-xs text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
+              Результат из кэша — идентичный запрос уже был обработан ранее
+            </div>
+          )}
 
           {/* === CLINICAL CASE MODE === */}
           {answer.type === "case" && answer.data && (
