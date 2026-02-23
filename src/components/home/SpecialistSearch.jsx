@@ -361,6 +361,19 @@ ${query}${fileContext}
           {/* === REFERENCE MODE === */}
           {answer.type === "reference" && answer.data && (
             <div className="bg-white rounded-2xl border border-gray-100 p-5">
+              {/* Fixed source banner */}
+              {answer.data.document_url && (
+                <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 flex items-start gap-2 text-xs text-slate-600 mb-4">
+                  <BookOpen className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-slate-400" />
+                  <div>
+                    <span className="font-semibold text-slate-700">Зафиксированный источник: </span>
+                    <a href={answer.data.document_url} target="_blank" rel="noopener noreferrer" className="underline hover:text-indigo-600">
+                      {answer.data.document_name || answer.data.document_url}
+                    </a>
+                    {answer.data.document_date && <span className="ml-1 text-slate-400">({answer.data.document_date})</span>}
+                  </div>
+                </div>
+              )}
               <div className="flex items-center gap-2 mb-4">
                 <BookOpen className="w-4 h-4 text-indigo-500" />
                 <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Ответ из клинических рекомендаций</h3>
