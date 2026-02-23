@@ -87,11 +87,13 @@ export const ONCOLOGY_FIELD_MAP = [
     label: "Рак яичников / первичный рак брюшины / рак маточных труб",
     keywords: ["рак яичников", "рак яичника", "рак брюшины", "рак маточных труб", "рак маточной трубы"],
     fields: [
+      ...TNM_FIELDS,
       { key: "brca_ovarian", label: "BRCA1/2 статус", type: "select", options: ["Не определялся", "BRCA wild-type", "gBRCA1 мутация", "gBRCA2 мутация", "sBRCA мутация"] },
       { key: "hrd_status", label: "HRD статус", type: "select", options: ["Не определялся", "HRD-отрицательный", "HRD-положительный"] },
       { key: "figo_stage", label: "Стадия по FIGO", type: "select", options: ["I", "IA", "IB", "IC", "IC1", "IC2", "IC3", "II", "IIA", "IIB", "III", "IIIA", "IIIA1", "IIIA2", "IIIB", "IIIC", "IV", "IVA", "IVB"] },
       { key: "residual_tumor", label: "Остаточная опухоль после операции", type: "select", options: ["R0 (нет остатков)", "R1 (< 1 см)", "R2 (> 1 см)", "Операция не выполнялась"] },
       { key: "parp_inhibitor_received", label: "PARP-ингибиторы в анамнезе", type: "select", options: ["Нет", "Олапариб", "Нирапариб", "Рукапариб"] },
+      { key: "platinum_sensitivity", label: "Чувствительность к платине", type: "select", options: ["Не определялась", "Платинорезистентная (< 6 мес.)", "Частично платиночувствительная (6–12 мес.)", "Платиночувствительная (> 12 мес.)"] },
     ],
   },
   {
@@ -99,9 +101,11 @@ export const ONCOLOGY_FIELD_MAP = [
     label: "Рак шейки матки",
     keywords: ["рак шейки матки", "рак шейки", "цервикальный рак", "плоскоклеточный рак шейки"],
     fields: [
+      ...TNM_FIELDS,
       { key: "figo_stage_cervical", label: "Стадия по FIGO (2018)", type: "select", options: ["IA1", "IA2", "IB1", "IB2", "IB3", "IIA1", "IIA2", "IIB", "IIIA", "IIIB", "IIIC1", "IIIC2", "IVA", "IVB"] },
       { key: "pdl1_cervical", label: "PD-L1 (CPS)", type: "select", options: ["Не определялся", "CPS < 1", "CPS 1–9", "CPS ≥ 1", "CPS ≥ 10"] },
       { key: "hpv_status", label: "ВПЧ-статус", type: "select", options: ["Не определялся", "ВПЧ-ассоциированный (16/18)", "ВПЧ-ассоциированный (другой тип)", "ВПЧ-независимый"] },
+      { key: "resectability_cervical", label: "Резектабельность", type: "select", options: ["Операбельная", "Местно-распространённая (нерезектабельная)", "Метастатическая"] },
     ],
   },
   {
@@ -109,11 +113,13 @@ export const ONCOLOGY_FIELD_MAP = [
     label: "Рак тела матки",
     keywords: ["рак тела матки", "рак эндометрия", "эндометриальный рак", "карцинома эндометрия"],
     fields: [
+      ...TNM_FIELDS,
       { key: "figo_stage_uterus", label: "Стадия по FIGO (2023)", type: "select", options: ["IA", "IA1", "IA2", "IB", "IC", "II", "IIA", "IIB", "IIIA", "IIIB", "IIIC1", "IIIC2", "IVA", "IVB"] },
       { key: "msi_uterus", label: "MSI/MMR статус", type: "select", options: ["Не определялся", "MSS / pMMR", "MSI-H / dMMR"] },
       { key: "pole_mutation", label: "POLE мутация (ultramutated)", type: "select", options: ["Не определялась", "Отрицательная", "Положительная (POLE-экзонуклеазный домен)"] },
       { key: "p53_status", label: "p53 статус", type: "select", options: ["Не определялся", "p53 дикий тип (WT)", "p53 аберрантный"] },
       { key: "her2_uterus", label: "HER2 (серозный рак)", type: "select", options: ["Не применимо", "Не определялся", "Отрицательный", "Положительный (3+)", "2+ (FISH полож.)"] },
+      { key: "myometrial_invasion", label: "Инвазия в миометрий", type: "select", options: ["Не определялась", "< 50% (поверхностная)", "≥ 50% (глубокая)"] },
     ],
   },
   {
@@ -121,11 +127,14 @@ export const ONCOLOGY_FIELD_MAP = [
     label: "Рак желудка / пищеводно-желудочного перехода",
     keywords: ["рак желудка", "рак пищевода", "аденокарцинома желудка", "рак пищеводно-желудочного", "рак кардии"],
     fields: [
+      ...TNM_FIELDS,
       { key: "her2_gastric", label: "HER2 статус", type: "select", options: ["Не определялся", "HER2-отрицательный (0/1+)", "HER2 2+ (ISH отриц.)", "HER2-положительный (3+ или 2+ ISH полож.)"] },
       { key: "pdl1_gastric", label: "PD-L1 (CPS)", type: "select", options: ["Не определялся", "CPS < 1", "CPS 1–4", "CPS ≥ 1", "CPS ≥ 5"] },
       { key: "msi_gastric", label: "MSI/MMR статус", type: "select", options: ["Не определялся", "MSS / pMMR", "MSI-H / dMMR"] },
       { key: "fgfr2_amplification", label: "FGFR2 амплификация", type: "select", options: ["Не определялась", "Отрицательная", "Положительная"] },
       { key: "lauren_type", label: "Тип по Lauren", type: "select", options: ["Не указан", "Кишечный", "Диффузный", "Смешанный"] },
+      { key: "resectability_gastric", label: "Резектабельность", type: "select", options: ["Резектабельный", "Местно-распространённый нерезектабельный", "Метастатический"] },
+      { key: "peritoneal_metastases", label: "Перитонеальные метастазы", type: "select", options: ["Нет", "Есть (ограниченные)", "Есть (распространённые)", "Канцероматоз"] },
     ],
   },
   {
@@ -133,6 +142,7 @@ export const ONCOLOGY_FIELD_MAP = [
     label: "Меланома кожи",
     keywords: ["меланома", "melanoma"],
     fields: [
+      ...TNM_FIELDS,
       { key: "braf_melanoma", label: "BRAF V600 мутация", type: "select", options: ["Не определялась", "BRAF wild-type", "BRAF V600E", "BRAF V600K", "Другая BRAF V600"] },
       { key: "nras_melanoma", label: "NRAS мутация", type: "select", options: ["Не определялась", "Отрицательная", "Положительная"] },
       { key: "kit_melanoma", label: "c-KIT мутация/амплификация", type: "select", options: ["Не определялась", "Отрицательная", "Положительная"] },
@@ -140,6 +150,7 @@ export const ONCOLOGY_FIELD_MAP = [
       { key: "clark_level", label: "Уровень инвазии по Кларку", type: "select", options: ["Не оценивался", "I", "II", "III", "IV", "V"] },
       { key: "breslow_thickness", label: "Толщина по Бреслоу (мм)", type: "select", options: ["Не измерялась", "≤ 1,0 мм", "1,01–2,0 мм", "2,01–4,0 мм", "> 4,0 мм"] },
       { key: "sentinel_node", label: "Биопсия сторожевого ЛУ", type: "select", options: ["Не выполнялась", "Отрицательная", "Положительная", "Не применимо (IV стадия)"] },
+      { key: "ldh_melanoma", label: "ЛДГ (прогностический фактор)", type: "select", options: ["Не определялась", "В норме (≤ ВГН)", "Повышена (> ВГН)"] },
     ],
   },
   {
@@ -147,10 +158,12 @@ export const ONCOLOGY_FIELD_MAP = [
     label: "Почечноклеточный рак (ПКР)",
     keywords: ["почечноклеточный рак", "рак почки", "рак паренхимы почки", "светлоклеточный рак почки", "pkr", "почечно-клеточный"],
     fields: [
+      ...TNM_FIELDS,
       { key: "rcc_histology", label: "Гистологический подтип", type: "select", options: ["Светлоклеточный (ccRCC)", "Папиллярный тип 1", "Папиллярный тип 2", "Хромофобный", "Карцинома собирательных трубочек", "Неклассифицируемый"] },
       { key: "imdc_score", label: "Прогностическая группа IMDC", type: "select", options: ["Не определялась", "Благоприятная (0 факторов)", "Промежуточная (1–2 фактора)", "Неблагоприятная (≥ 3 факторов)"] },
       { key: "nephrectomy", label: "Нефрэктомия", type: "select", options: ["Не выполнялась", "Радикальная", "Частичная", "Циторедуктивная"] },
       { key: "vhl_mutation", label: "VHL мутация/HIF-2α", type: "select", options: ["Не определялась", "Отрицательная", "VHL мутация (HIF-2α активирован)"] },
+      { key: "sarcomatoid_diff", label: "Саркоматоидная дифференцировка", type: "select", options: ["Нет", "Есть"] },
     ],
   },
   {
@@ -158,11 +171,13 @@ export const ONCOLOGY_FIELD_MAP = [
     label: "Рак предстательной железы (РПЖ)",
     keywords: ["рак предстательной железы", "рак простаты", "рпж", "аденокарцинома простаты", "аденокарцинома предстательной железы"],
     fields: [
+      ...TNM_FIELDS,
       { key: "psa_initial", label: "ПСА на момент постановки диагноза (нг/мл)", type: "text" },
       { key: "gleason_score", label: "Сумма Глисона / Grade Group", type: "select", options: ["GG1 (≤ 6 / 3+3)", "GG2 (7 / 3+4)", "GG3 (7 / 4+3)", "GG4 (8 / 4+4 или 3+5 или 5+3)", "GG5 (9–10)"] },
       { key: "brca_prostate", label: "BRCA1/2 / HRR мутация", type: "select", options: ["Не определялась", "Отрицательная (HRR-proficient)", "BRCA1 мутация", "BRCA2 мутация", "Другая HRR мутация (ATM, CDK12 и др.)"] },
       { key: "castration_status", label: "Кастрационный статус", type: "select", options: ["Гормон-чувствительный (ГЧРПЖ)", "Кастрационно-резистентный (КРРПЖ)", "Неметастатический КРРПЖ"] },
       { key: "ar_splice_variant", label: "AR-V7 (вариант сплайсинга)", type: "select", options: ["Не определялся", "AR-V7 отрицательный", "AR-V7 положительный"] },
+      { key: "disease_volume_prostate", label: "Объём болезни (mCSPC)", type: "select", options: ["Не применимо", "Малый объём (< 4 мет., нет висцеральных)", "Большой объём (≥ 4 кост. мет. или висцеральные)"] },
     ],
   },
   {
@@ -170,10 +185,12 @@ export const ONCOLOGY_FIELD_MAP = [
     label: "Рак мочевого пузыря",
     keywords: ["рак мочевого пузыря", "уротелиальная карцинома", "переходноклеточный рак мочевого пузыря"],
     fields: [
+      ...TNM_FIELDS,
       { key: "bladder_type", label: "Тип по инвазии", type: "select", options: ["Неинвазивный (NMIBC: Ta, T1, CIS)", "Мышечно-инвазивный (MIBC: T2–T4)", "Метастатический"] },
       { key: "fgfr3_bladder", label: "FGFR3 мутация/транслокация", type: "select", options: ["Не определялась", "Отрицательная", "Положительная"] },
       { key: "pdl1_bladder", label: "PD-L1 (IC)", type: "select", options: ["Не определялся", "IC < 5%", "IC ≥ 5%"] },
       { key: "cisplatin_eligible", label: "Пригодность к цисплатину", type: "select", options: ["Пригоден к цисплатину", "Непригоден к цисплатину (КФ < 60, ECOG ≥ 2 и др.)"] },
+      { key: "bcg_therapy", label: "БЦЖ-терапия (NMIBC)", type: "select", options: ["Не применимо", "Не проводилась", "Проводилась (адекватная)", "Рефрактерность к БЦЖ"] },
     ],
   },
   {
@@ -181,10 +198,12 @@ export const ONCOLOGY_FIELD_MAP = [
     label: "Рак поджелудочной железы",
     keywords: ["рак поджелудочной железы", "аденокарцинома поджелудочной железы", "протоковая аденокарцинома"],
     fields: [
+      ...TNM_FIELDS,
       { key: "resectability_pancreas", label: "Резектабельность", type: "select", options: ["Резектабельный", "Пограничный резектабельный (Borderline resectable)", "Местно-распространённый нерезектабельный", "Метастатический"] },
       { key: "brca_pancreas", label: "BRCA1/2 / PALB2 мутация", type: "select", options: ["Не определялась", "Отрицательная", "BRCA1 мутация", "BRCA2 мутация", "PALB2 мутация"] },
       { key: "msi_pancreas", label: "MSI статус", type: "select", options: ["Не определялся", "MSS", "MSI-H / dMMR"] },
       { key: "ntrk_pancreas", label: "NTRK транслокация", type: "select", options: ["Не определялась", "Отрицательная", "Положительная"] },
+      { key: "vascular_involvement", label: "Вовлечение сосудов (SMV/PV/SMA)", type: "select", options: ["Нет", "Контакт ≤ 180°", "Контакт > 180° (нерезектабельность)", "Окклюзия"] },
     ],
   },
   {
@@ -192,10 +211,12 @@ export const ONCOLOGY_FIELD_MAP = [
     label: "Гепатоцеллюлярный рак (ГЦК)",
     keywords: ["гепатоцеллюлярный рак", "рак печени", "гцк", "гепатоцеллюлярная карцинома"],
     fields: [
+      ...TNM_FIELDS,
       { key: "child_pugh", label: "Класс Child-Pugh", type: "select", options: ["A5", "A6", "B7", "B8", "B9", "C10–15"] },
       { key: "bclc_stage", label: "Стадия BCLC", type: "select", options: ["0 (Very early)", "A (Early)", "B (Intermediate)", "C (Advanced)", "D (Terminal)"] },
       { key: "portal_vein_invasion", label: "Инвазия в воротную вену", type: "select", options: ["Нет", "Сегментарная", "Долевая (Vp3)", "Главный ствол (Vp4)"] },
       { key: "afp_level", label: "АФП (нг/мл)", type: "select", options: ["Не определялся", "< 400", "400–2000", "> 2000"] },
+      { key: "ecog_hcc", label: "ECOG статус", type: "select", options: ["0", "1", "2", "3–4"] },
     ],
   },
   {
@@ -203,10 +224,12 @@ export const ONCOLOGY_FIELD_MAP = [
     label: "Опухоли головы и шеи",
     keywords: ["рак глотки", "рак гортани", "рак ротоглотки", "рак носоглотки", "рак полости рта", "рак языка", "опухоль головы и шеи", "плоскоклеточный рак головы и шеи", "рак слюнных желез"],
     fields: [
+      ...TNM_FIELDS,
       { key: "hn_site", label: "Локализация", type: "select", options: ["Полость рта", "Ротоглотка", "Гортаноглотка", "Гортань", "Носоглотка", "Слюнные железы", "Носовая полость / синусы", "Неизвестная первичная локализация"] },
       { key: "hpv_hn", label: "HPV-статус (ротоглотка)", type: "select", options: ["Не применимо", "Не определялся", "HPV-ассоциированный (p16+)", "HPV-негативный (p16-)"] },
       { key: "pdl1_hn", label: "PD-L1 (CPS)", type: "select", options: ["Не определялся", "CPS < 1", "CPS 1–19", "CPS ≥ 1", "CPS ≥ 20"] },
       { key: "ebv_hn", label: "EBV-статус (носоглотка)", type: "select", options: ["Не применимо", "EBV-ассоциированный", "EBV-негативный"] },
+      { key: "resectability_hn", label: "Резектабельность", type: "select", options: ["Резектабельная", "Нерезектабельная", "Метастатическая"] },
     ],
   },
   {
@@ -218,6 +241,7 @@ export const ONCOLOGY_FIELD_MAP = [
       { key: "ann_arbor_modifiers", label: "Модификаторы стадии", type: "select", options: ["A (без симптомов)", "B (с симптомами)", "E (экстранодальное поражение)", "S (поражение селезёнки)", "BE", "BS"] },
       { key: "bulk_disease", label: "Булк-опухоль (≥ 10 см)", type: "select", options: ["Нет", "Есть"] },
       { key: "ips_score", label: "МПС (IPS) прогностический индекс", type: "select", options: ["Не рассчитывался", "0 (очень благоприятный)", "1", "2", "3", "≥ 4 (неблагоприятный)"] },
+      { key: "pet_ct_interim", label: "ПЭТ-КТ interim (оценка ответа)", type: "select", options: ["Не выполнялась", "ПЭТ-негативный (Deauville 1–3)", "ПЭТ-положительный (Deauville 4–5)"] },
     ],
   },
   {
@@ -229,6 +253,7 @@ export const ONCOLOGY_FIELD_MAP = [
       { key: "ipi_score", label: "МПИ (IPI) индекс", type: "select", options: ["Не рассчитывался", "0–1 (низкий риск)", "2 (промежуточно-низкий)", "3 (промежуточно-высокий)", "4–5 (высокий риск)"] },
       { key: "cell_of_origin", label: "Клеточное происхождение (COO)", type: "select", options: ["Не определялось", "GCB (germinal center B-cell)", "non-GCB / ABC", "Неклассифицируемое"] },
       { key: "myc_bcl2_rearrangement", label: "MYC/BCL2/BCL6 перестройка", type: "select", options: ["Не определялась", "Нет", "MYC+", "Double-hit (MYC+BCL2 или MYC+BCL6)", "Triple-hit"] },
+      { key: "cns_risk_dlbcl", label: "Риск поражения ЦНС (CNS-IPI)", type: "select", options: ["Не рассчитывался", "Низкий (0–1)", "Промежуточный (2–3)", "Высокий (4–6)"] },
     ],
   },
   {
@@ -239,6 +264,7 @@ export const ONCOLOGY_FIELD_MAP = [
       { key: "iss_stage", label: "Стадия по R-ISS", type: "select", options: ["Не определялась", "I", "II", "III"] },
       { key: "cytogenetic_risk_myeloma", label: "Цитогенетический риск", type: "select", options: ["Не определялся", "Стандартный", "Высокий (del17p, t(4;14), t(14;16))", "Ультравысокий (≥ 2 высокорисковых аномалий)"] },
       { key: "transplant_eligible", label: "Пригодность к ВДХТ + АТСКК", type: "select", options: ["Пригоден", "Непригоден (возраст, коморбидность)"] },
+      { key: "renal_function_myeloma", label: "Функция почек (СКФ)", type: "select", options: ["Норма (≥ 60 мл/мин)", "Умеренное снижение (30–59)", "Тяжёлое снижение (< 30)", "Диализ"] },
     ],
   },
   {
@@ -246,6 +272,7 @@ export const ONCOLOGY_FIELD_MAP = [
     label: "Рак прямой кишки",
     keywords: ["рак прямой кишки", "рак прямой"],
     fields: [
+      ...TNM_FIELDS,
       { key: "mrт_staging_rectum", label: "MRT-стадирование", type: "select", options: ["mrT1", "mrT2", "mrT3a/b", "mrT3c/d", "mrT4a", "mrT4b"] },
       { key: "emvi", label: "Экстрамуральная сосудистая инвазия (EMVI)", type: "select", options: ["Не определялась", "Отсутствует", "Присутствует"] },
       { key: "crm_status", label: "Статус CRM (циркулярного края)", type: "select", options: ["Не определялся", "CRM ≥ 1 мм (свободный)", "CRM < 1 мм (угроза или поражение)"] },
