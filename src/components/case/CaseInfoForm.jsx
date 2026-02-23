@@ -262,14 +262,44 @@ ${codesList}
     if (result.immunohistochemistry) merged.immunohistochemistry = result.immunohistochemistry;
     if (result.molecular_markers) merged.molecular_markers = result.molecular_markers;
 
-    // Always merge oncology_specific_fields — also detect type from diagnosis text to trigger UI
+    // Map extracted oncology_specific_fields to the correct field keys used by OncologySpecificFields
     const diagText = (result.diagnoses || merged.diagnoses || []).map(d => d.text).filter(Boolean).join(" ");
     const detectedType = detectOncologyType(diagText || result.mkb_code || "");
     const extractedSpecific = result.oncology_specific_fields || {};
 
-    // If we have a detected type, pre-fill its fields from extracted data + molecular markers
-    if (detectedType && Object.keys(extractedSpecific).length > 0) {
-      merged.oncology_specific_fields = { ...(merged.oncology_specific_fields || {}), ...extractedSpecific };
+    if (Object.keys(extractedSpecific).length > 0 && detectedType) {
+      // Build a normalized map: try to match extracted keys/values to known field keys+options
+      const normalizedSpecific = { ...(merged.oncology_specific_fields || {}) };
+      for (const field of detectedType.fields) {
+        // Check if key already set correctly
+        if (extractedSpecific[field.key]) {
+          normalizedSpecific[field.key] = extractedSpecific[field.key];
+          continue;
+        }
+        // Try to find by label match (fuzzy)
+        const labelLower = field.label.toLowerCase();
+        for (const [k, v] of Object.entries(extractedSpecific)) {
+          const kLower = k.toLowerCase();
+          // Match if extracted key contains significant words from field label
+          const labelWords = labelLower.split(/[\s/()+–-]+/).filter(w => w.length > 3);
+          const matched = labelWords.some(w => kLower.includes(w));
+          if (matched && v) {
+            // Try to find the best matching option
+            if (field.options) {
+              const valLower = String(v).toLowerCase();
+              const bestOpt = field.options.find(opt => {
+                const oLower = opt.toLowerCase();
+                return oLower.includes(valLower) || valLower.includes(oLower.split(/[\s(]+/)[0]);
+              });
+              normalizedSpecific[field.key] = bestOpt || field.options.find(opt => opt !== "Не определялся" && opt !== "Не определялась") || v;
+            } else {
+              normalizedSpecific[field.key] = String(v);
+            }
+            break;
+          }
+        }
+      }
+      merged.oncology_specific_fields = normalizedSpecific;
     } else if (Object.keys(extractedSpecific).length > 0) {
       merged.oncology_specific_fields = { ...(merged.oncology_specific_fields || {}), ...extractedSpecific };
     }
