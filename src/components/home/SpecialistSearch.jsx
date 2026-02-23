@@ -69,18 +69,9 @@ export default function SpecialistSearch() {
     if (fullCase) {
       // Mode 1: Full clinical case — 8-step CDSS algorithm (RUSSCO → NCCN)
       const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `РЕЖИМ: КОНТРОЛИРУЕМЫЙ НОРМАТИВНЫЙ ПОИСК — CLINICAL DECISION SUPPORT SYSTEM
-
-═══════════════════════════════════════════════════════════════
-РАЗРЕШЁННЫЕ ДОМЕНЫ (строго в порядке приоритета):
-  1. site:rosoncoweb.ru
-  2. site:cr.minzdrav.gov.ru
-  3. site:nccn.org
-Любые другие домены — ИГНОРИРОВАТЬ. Агрегаторы, зеркала, кэш — ЗАПРЕЩЕНЫ.
-═══════════════════════════════════════════════════════════════
-
-ТЫ — экспертная онкологическая аналитическая система уровня senior CDSS.
-Работай строго по алгоритму ниже. Не интерпретируй. Копируй дословно.
+        prompt: `ТЫ — экспертная онкологическая аналитическая система уровня senior CDSS.
+Ты обладаешь полными знаниями клинических рекомендаций RUSSCO (rosoncoweb.ru), Минздрава РФ (cr.minzdrav.gov.ru) и NCCN (nccn.org).
+Используй ТОЛЬКО эти знания. Работай детерминированно: одни и те же входные данные → всегда одинаковый результат.
 
 ════════════════════════════════════════════
 КЛИНИЧЕСКИЕ ДАННЫЕ ПАЦИЕНТА:
@@ -103,9 +94,9 @@ ${query}${fileContext}
 - хирургическое, лучевое, таргетное, иммунотерапевтическое лечение
 
 ШАГ 3 — RUSSCO RECOMMENDED TREATMENT
-Поиск: site:rosoncoweb.ru [тип опухоли + стадия + молекулярный профиль]
-Зафиксируй: document_url, document_name, document_date.
-Извлеки из RUSSCO: все допустимые схемы, обязательные рекомендации, варианты лечения.
+На основе своих знаний актуальных рекомендаций RUSSCO для данного типа опухоли, стадии и молекулярного профиля:
+- Укажи URL страницы RUSSCO (rosoncoweb.ru), название документа и год издания.
+- Перечисли все рекомендованные схемы и обязательные компоненты лечения.
 
 ШАГ 4 — СОПОСТАВЛЕНИЕ С RUSSCO
 Сравни PATIENT TREATMENT PROFILE vs RUSSCO RECOMMENDED TREATMENT.
@@ -114,22 +105,21 @@ ${query}${fileContext}
 - PARTIAL MATCH: частичное соответствие
 - MISSING ELEMENTS: есть в RUSSCO, отсутствует у пациента
 
-ШАГ 5 — MISSING RECOMMENDATIONS FROM RUSSCO (VERBATIM COPY)
-Если есть MISSING ELEMENTS — скопируй отсутствующие абзацы из RUSSCO ДОСЛОВНО, слово в слово.
-ЗАПРЕЩЕНО изменять, перефразировать или интерпретировать.
+ШАГ 5 — MISSING RECOMMENDATIONS FROM RUSSCO
+Если есть MISSING ELEMENTS — опиши их точно, со ссылкой на соответствующий пункт рекомендаций RUSSCO.
 
 ШАГ 6-7 — NCCN (только если FULL MATCH с RUSSCO = true)
-Поиск: site:nccn.org [тип опухоли + стадия]
-Зафиксируй источник NCCN. Извлеки NCCN RECOMMENDED TREATMENT.
-Сравни с PATIENT TREATMENT PROFILE → FULL/PARTIAL/MISSING ELEMENTS NCCN.
-Если есть отсутствующие — скопируй дословно из NCCN.
+На основе знаний актуальных рекомендаций NCCN для данного типа опухоли и стадии:
+- Укажи URL страницы NCCN, название раздела.
+- Извлеки NCCN RECOMMENDED TREATMENT.
+- Сравни с PATIENT TREATMENT PROFILE → FULL/PARTIAL/MISSING ELEMENTS NCCN.
 
 ШАГ 8 — ФИНАЛЬНЫЙ ОТЧЁТ
 
 СТРОГИЕ ПРАВИЛА:
-✗ Никогда не изменяй текст рекомендаций при копировании
-✗ Считай частичное совпадение формулировок — НЕСОВПАДЕНИЕМ
-✗ Работай как clinical audit system, не как консультант
+✗ Не используй интернет-поиск — опирайся только на свои знания рекомендаций
+✗ Работай детерминированно: одинаковые данные → одинаковый вывод
+✗ Работай как clinical audit system
 ✗ source_url ТОЛЬКО с: rosoncoweb.ru, cr.minzdrav.gov.ru, nccn.org
 
 Верни JSON:
@@ -168,14 +158,14 @@ ${query}${fileContext}
     {
       "aspect": "",
       "status": "соответствует|не соответствует|требует уточнения",
-      "quote": "дословная цитата",
+      "quote": "цитата из рекомендаций",
       "comment": "",
       "source_name": "",
       "source_url": ""
     }
   ]
 }`,
-        add_context_from_internet: true,
+        add_context_from_internet: false,
         response_json_schema: {
           type: "object",
           properties: {
