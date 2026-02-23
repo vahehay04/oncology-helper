@@ -10,12 +10,22 @@
  * Типы полей: select, multiselect, text, number
  */
 
+// TNM fields universal — injected into every nozology
+const TNM_FIELDS = [
+  { key: "tnm_t", label: "T (размер первичной опухоли)", type: "select", options: ["Tx", "T0", "Tis", "T1", "T1a", "T1b", "T1c", "T2", "T2a", "T2b", "T3", "T3a", "T3b", "T3c", "T4", "T4a", "T4b"] },
+  { key: "tnm_n", label: "N (регионарные лимфоузлы)", type: "select", options: ["Nx", "N0", "N1", "N1a", "N1b", "N1c", "N2", "N2a", "N2b", "N2c", "N3", "N3a", "N3b", "N3c"] },
+  { key: "tnm_m", label: "M (отдалённые метастазы)", type: "select", options: ["M0", "M1", "M1a", "M1b", "M1c"] },
+  { key: "tnm_overall_stage", label: "Стадия (I–IV)", type: "select", options: ["I", "IA", "IA1", "IA2", "IA3", "IB", "IIA", "IIB", "IIC", "IIIA", "IIIB", "IIIC", "IVA", "IVB", "IVC"] },
+  { key: "tnm_prefix", label: "Префикс TNM", type: "select", options: ["c (клинический)", "p (патоморфологический)", "y (после неоадъювантной)", "r (рецидив)", "a (аутопсия)"] },
+];
+
 export const ONCOLOGY_FIELD_MAP = [
   {
     id: "nsclc",
     label: "Немелкоклеточный рак лёгкого (НМРЛ)",
     keywords: ["немелкоклеточный рак лёгкого", "немелкоклеточный рак легкого", "нмрл", "nsclc", "аденокарцинома лёгкого", "аденокарцинома легкого", "плоскоклеточный рак лёгкого", "плоскоклеточный рак легкого", "крупноклеточный рак лёгкого"],
     fields: [
+      ...TNM_FIELDS,
       { key: "lung_localization", label: "Локализация опухоли", type: "select", options: ["Верхняя доля правого лёгкого", "Средняя доля правого лёгкого", "Нижняя доля правого лёгкого", "Верхняя доля левого лёгкого", "Нижняя доля левого лёгкого", "Главный бронх", "Билобарное поражение", "Двустороннее поражение"] },
       { key: "lung_histology_detail", label: "Гистологический подтип", type: "select", options: ["Аденокарцинома", "Плоскоклеточный рак", "Крупноклеточная карцинома", "Аденосквамозная карцинома", "Саркоматоидная карцинома", "NUT-карцинома"] },
       { key: "egfr_mutation", label: "Мутация EGFR", type: "select", options: ["Не определялась", "Отрицательная (WT)", "Экзон 19 del", "Экзон 21 L858R", "Экзон 20 ins", "Экзон 20 T790M", "Редкие мутации"] },
@@ -28,6 +38,7 @@ export const ONCOLOGY_FIELD_MAP = [
       { key: "ret_fusion", label: "RET транслокация", type: "select", options: ["Не определялась", "Отрицательная", "Положительная"] },
       { key: "ntrk_fusion", label: "NTRK транслокация", type: "select", options: ["Не определялась", "Отрицательная", "Положительная"] },
       { key: "brain_metastases", label: "Метастазы в ГМ", type: "select", options: ["Нет", "Есть (стабильные)", "Есть (активные)", "Лептоменингеальные"] },
+      { key: "resectability_lung", label: "Резектабельность", type: "select", options: ["Резектабельная (I–II ст.)", "Потенциально операбельная (III ст.)", "Нерезектабельная", "Метастатическая (IV ст.)"] },
     ],
   },
   {
@@ -35,6 +46,7 @@ export const ONCOLOGY_FIELD_MAP = [
     label: "Мелкоклеточный рак лёгкого (МРЛ)",
     keywords: ["мелкоклеточный рак лёгкого", "мелкоклеточный рак легкого", "мрл", "sclc"],
     fields: [
+      ...TNM_FIELDS,
       { key: "sclc_stage_va", label: "Стадия по VA/IASLC", type: "select", options: ["Limited disease (LD) — I–III стадия", "Extensive disease (ED) — IV стадия"] },
       { key: "sclc_brain_metastases", label: "Метастазы в ГМ", type: "select", options: ["Нет", "Есть (симптомные)", "Есть (бессимптомные)", "Лептоменингеальные"] },
       { key: "sclc_pci", label: "Профилактическое краниальное облучение (ПКО)", type: "select", options: ["Не проводилось", "Проводилось", "Планируется"] },
@@ -45,6 +57,7 @@ export const ONCOLOGY_FIELD_MAP = [
     label: "Рак молочной железы",
     keywords: ["рак молочной железы", "рмж", "breast cancer", "карцинома молочной железы"],
     fields: [
+      ...TNM_FIELDS,
       { key: "her2_status", label: "HER2 статус", type: "select", options: ["Не определялся", "HER2-отрицательный (0)", "HER2-отрицательный (1+)", "HER2 2+ (FISH отрицательный)", "HER2 2+ (FISH положительный)", "HER2-положительный (3+)", "HER2-ультранизкий (1+)", "HER2-низкий (2+ FISH-отриц.)"] },
       { key: "er_status", label: "ER статус", type: "select", options: ["Не определялся", "ER-отрицательный (< 1%)", "ER-положительный 1–9%", "ER-положительный ≥ 10%"] },
       { key: "pr_status", label: "PR статус", type: "select", options: ["Не определялся", "PR-отрицательный (< 1%)", "PR-положительный 1–9%", "PR-положительный ≥ 10%"] },
@@ -52,6 +65,7 @@ export const ONCOLOGY_FIELD_MAP = [
       { key: "brca_status", label: "BRCA1/2 статус", type: "select", options: ["Не определялся", "BRCA1/2 wild-type", "BRCA1 мутация", "BRCA2 мутация", "gBRCA мутация", "sBRCA мутация"] },
       { key: "molecular_subtype", label: "Молекулярный подтип", type: "select", options: ["Luminal A", "Luminal B (HER2-отриц.)", "Luminal B (HER2-полож.)", "HER2-обогащённый", "Triple-negative (ТНРМЖ)"] },
       { key: "pikhd3_mutation", label: "PIK3CA мутация", type: "select", options: ["Не определялась", "Отрицательная", "Положительная"] },
+      { key: "disease_extent", label: "Распространённость болезни", type: "select", options: ["Ранний рак (I–II)", "Местно-распространённый (III)", "Метастатический (IV)", "Олигометастатический"] },
     ],
   },
   {
@@ -59,6 +73,7 @@ export const ONCOLOGY_FIELD_MAP = [
     label: "Рак ободочной и прямой кишки (КРР)",
     keywords: ["рак ободочной кишки", "рак прямой кишки", "колоректальный рак", "крр", "рак толстой кишки", "рак толстого кишечника", "рак сигмовидной кишки", "рак ректосигмоидного"],
     fields: [
+      ...TNM_FIELDS,
       { key: "ras_status", label: "RAS статус (KRAS/NRAS)", type: "select", options: ["Не определялся", "RAS wild-type", "KRAS экзон 2 (кодоны 12/13)", "KRAS экзон 3 (кодоны 59/61)", "KRAS экзон 4 (кодоны 117/146)", "NRAS мутация"] },
       { key: "braf_crc", label: "BRAF V600E", type: "select", options: ["Не определялся", "BRAF wild-type", "BRAF V600E мутация"] },
       { key: "msi_status", label: "MSI/MMR статус", type: "select", options: ["Не определялся", "MSS / MMR-proficient (pMMR)", "MSI-H / MMR-дефицитный (dMMR)"] },
