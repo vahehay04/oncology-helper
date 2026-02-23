@@ -44,13 +44,31 @@ export default function DiagnosticsAndTreatmentForm({ diagnostics, treatments, o
     }
   }, [caseData]);
 
-  // Pre-populate from extracted doc data
+  // Pre-populate from extracted doc data — normalize type field for diagnostics
   useEffect(() => {
     if (caseData?._extracted_diagnostics?.length > 0 && diagnostics.length === 0) {
-      onDiagnosticsChange(caseData._extracted_diagnostics);
+      // Normalize: set name field, map to "Другое" + custom_name if not in list
+      const normalized = caseData._extracted_diagnostics.map(d => {
+        const nameVal = d.name || d.type || "";
+        const isKnown = DEFAULT_DIAGNOSTICS.includes(nameVal);
+        if (isKnown) return { ...d, name: nameVal };
+        return { ...d, name: "Другое", custom_name: nameVal };
+      });
+      onDiagnosticsChange(normalized);
     }
     if (caseData?._extracted_treatments?.length > 0 && treatments.length === 0) {
-      onTreatmentsChange(caseData._extracted_treatments);
+      // Normalize type to known TREATMENT_TYPES
+      const normalized = caseData._extracted_treatments.map(t => {
+        const typeVal = t.type || "";
+        const isKnown = TREATMENT_TYPES.includes(typeVal);
+        if (isKnown) return t;
+        // Try to match
+        if (/химио/i.test(typeVal)) return { ...t, type: "Химиотерапия" };
+        if (/хирург|операц/i.test(typeVal)) return { ...t, type: "Хирургическое лечение" };
+        if (/лучев|лт|радио/i.test(typeVal)) return { ...t, type: "Лучевая терапия" };
+        return { ...t, type: "Другое", custom_type: typeVal };
+      });
+      onTreatmentsChange(normalized);
     }
   }, [caseData?._extracted_diagnostics, caseData?._extracted_treatments]);
 

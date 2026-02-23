@@ -261,9 +261,19 @@ ${codesList}
     if (result.m_stage) merged.m_stage = result.m_stage;
     if (result.immunohistochemistry) merged.immunohistochemistry = result.immunohistochemistry;
     if (result.molecular_markers) merged.molecular_markers = result.molecular_markers;
-    if (result.oncology_specific_fields && Object.keys(result.oncology_specific_fields).length > 0) {
-      merged.oncology_specific_fields = { ...(merged.oncology_specific_fields || {}), ...result.oncology_specific_fields };
+
+    // Always merge oncology_specific_fields — also detect type from diagnosis text to trigger UI
+    const diagText = (result.diagnoses || merged.diagnoses || []).map(d => d.text).filter(Boolean).join(" ");
+    const detectedType = detectOncologyType(diagText || result.mkb_code || "");
+    const extractedSpecific = result.oncology_specific_fields || {};
+
+    // If we have a detected type, pre-fill its fields from extracted data + molecular markers
+    if (detectedType && Object.keys(extractedSpecific).length > 0) {
+      merged.oncology_specific_fields = { ...(merged.oncology_specific_fields || {}), ...extractedSpecific };
+    } else if (Object.keys(extractedSpecific).length > 0) {
+      merged.oncology_specific_fields = { ...(merged.oncology_specific_fields || {}), ...extractedSpecific };
     }
+
     // Store extracted diagnostics/treatments for step 2
     if (result.diagnostics_performed?.length > 0) merged._extracted_diagnostics = result.diagnostics_performed;
     if (result.treatment_performed?.length > 0) merged._extracted_treatments = result.treatment_performed;
