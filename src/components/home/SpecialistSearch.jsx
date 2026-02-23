@@ -65,10 +65,21 @@ export default function SpecialistSearch() {
     if (!query.trim() && !attachedFile) return;
     setLoading(true);
     setAnswer(null);
+    setFromCache(false);
 
     let fileContext = "";
     if (uploadedFileUrl?.type === "text" && uploadedFileUrl.content) {
       fileContext = `\n\nСОДЕРЖИМОЕ ПРИЛОЖЕННОГО ДОКУМЕНТА:\n${uploadedFileUrl.content}`;
+    }
+
+    const cacheKey = getCacheKey(query, fileContext);
+    if (answerCache.has(cacheKey)) {
+      const cached = answerCache.get(cacheKey);
+      setMode(cached.type === "case" ? "case" : "reference");
+      setAnswer(cached);
+      setFromCache(true);
+      setLoading(false);
+      return;
     }
 
     const fullCase = isFullClinicalCase(query + fileContext);
