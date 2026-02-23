@@ -182,7 +182,31 @@ ${codesList}
   const runAiExtraction = async (fileUrl, fileName) => {
     setExtractingData(true);
 
-    const extractionSchema = {
+    const isImage = /\.(png|jpg|jpeg|gif|webp)$/i.test(fileName);
+    const isDocx = /\.docx$/i.test(fileName);
+
+    // Step 1: get raw document text
+    let docText = "";
+    let imageUrl = null;
+    if (isImage) {
+      imageUrl = fileUrl;
+    } else if (isDocx) {
+      const response = await fetch(fileUrl);
+      const arrayBuffer = await response.arrayBuffer();
+      const { value } = await mammoth.extractRawText({ arrayBuffer });
+      docText = value;
+    } else {
+      const extracted = await base44.integrations.Core.ExtractDataFromUploadedFile({
+        file_url: fileUrl,
+        json_schema: { type: "object", properties: { text: { type: "string" } } }
+      });
+      docText = extracted?.output?.text || JSON.stringify(extracted?.output || "");
+    }
+
+    const docContext = imageUrl ? "" : `\n\nПОЛНОЕ СОДЕРЖИМОЕ ДОКУМЕНТА:\n${docText}`;
+
+    // Step 2: extract base clinical data + detect oncology type
+    const baseSchema = {
       type: "object",
       properties: {
         case_number: { type: "string" },
@@ -195,7 +219,6 @@ ${codesList}
         m_stage: { type: "string" },
         immunohistochemistry: { type: "string" },
         molecular_markers: { type: "string" },
-        oncology_specific_fields: { type: "object", additionalProperties: true },
         diagnostics_performed: { type: "array", items: { type: "object", properties: { name: { type: "string" }, date: { type: "string" }, result: { type: "string" } } } },
         treatment_performed: { type: "array", items: { type: "object", properties: { type: { type: "string" }, details: { type: "string" }, start_date: { type: "string" }, end_date: { type: "string" }, result: { type: "string" } } } },
         side_effects: { type: "string" },
@@ -203,110 +226,115 @@ ${codesList}
       }
     };
 
-    const basePrompt = `Ты — медицинский эксперт-онколог. Из приложенного медицинского документа ТЩАТЕЛЬНО извлеки ВСЕ данные клинического случая.
+    const basePromptText = `Ты — медицинский эксперт-онколог. ТЩАТЕЛЬНО прочитай весь документ и извлеки ВСЕ клинические данные.
 
-ОБЯЗАТЕЛЬНО извлеки:
-- Диагноз (основной, сопутствующие, осложнения) с типом каждого
-- Код МКБ-10
-- Стадию TNM (T, N, M отдельно и общую стадию)
-- Гистологический тип опухоли → в поле immunohistochemistry
-- Молекулярно-генетические маркеры (HER2, BRCA, PIK3CA, EGFR, MSS/MSI, PD-L1, KRAS, BRAF и др.)
-- Специфические параметры онкологии в oncology_specific_fields (например: "Гистологический тип": "аденокарцинома", "HER2 статус": "отрицательный", "MSS/MSI": "MSS", "Степень дифференцировки": "G2" и т.д.)
-- ВСЕ диагностические мероприятия (биопсию, гистологию, ИГХ, молекулярно-генетические исследования, КТ, МРТ, УЗИ, анализы крови) — каждое как отдельный объект в diagnostics_performed с полем name (точное название), date, result
-- ВСЕ виды лечения (химиотерапию со схемой и числом курсов, лучевую терапию, хирургию и др.) — каждое отдельно в treatment_performed с полем type (точный тип: "Химиотерапия"/"Лучевая терапия"/"Хирургическое лечение"), details (схема, дозы, число курсов), start_date, end_date, result
-- Побочные эффекты и исходы
+ОБЯЗАТЕЛЬНО найди и заполни:
+1. Все диагнозы (основной, осложнения, сопутствующие) с типом каждого
+2. Код МКБ-10 и его описание
+3. Стадию опухоли: TNM (T, N, M отдельно) и общую стадию
+4. Гистологический тип → поле immunohistochemistry
+5. Молекулярно-генетические маркеры (HER2, MSI/MSS, PD-L1, EGFR, KRAS, BRAF и т.д.) → поле molecular_markers
+6. ВСЕ обследования (биопсия, гистология, ИГХ, молекулярная диагностика, КТ, МРТ, ПЭТ, УЗИ, анализы) — каждое ОТДЕЛЬНЫМ объектом с name, date, result
+7. ВСЕ виды лечения (химиотерапия со схемой и числом курсов, лучевая терапия, операции) — каждое ОТДЕЛЬНЫМ объектом с type ("Химиотерапия"/"Лучевая терапия"/"Хирургическое лечение"), details (схема, дозы, курсы), даты, результат
 
-Верни JSON. Если данных нет — оставь пустую строку или пустой массив.`;
+Если данных нет — пустая строка или пустой массив. Верни JSON.`;
 
-    const isImage = /\.(png|jpg|jpeg|gif|webp)$/i.test(fileName);
-    const isDocx = /\.docx$/i.test(fileName);
+    const baseResult = await base44.integrations.Core.InvokeLLM({
+      prompt: basePromptText + docContext,
+      ...(imageUrl && { file_urls: [imageUrl] }),
+      response_json_schema: baseSchema,
+    });
 
-    let result;
-    if (isImage) {
-      result = await base44.integrations.Core.InvokeLLM({
-        prompt: basePrompt,
-        file_urls: [fileUrl],
-        response_json_schema: extractionSchema,
-      });
-    } else if (isDocx) {
-      // Fetch the uploaded file, convert docx to text client-side via mammoth
-      const response = await fetch(fileUrl);
-      const arrayBuffer = await response.arrayBuffer();
-      const { value: docText } = await mammoth.extractRawText({ arrayBuffer });
-      result = await base44.integrations.Core.InvokeLLM({
-        prompt: basePrompt + `\n\nСодержимое документа:\n${docText}`,
-        response_json_schema: extractionSchema,
-      });
-    } else {
-      // pdf, txt — use ExtractDataFromUploadedFile
-      const extracted = await base44.integrations.Core.ExtractDataFromUploadedFile({
-        file_url: fileUrl,
-        json_schema: { type: "object", properties: { text: { type: "string" } } }
-      });
-      const docText = extracted?.output?.text || JSON.stringify(extracted?.output || "");
-      result = await base44.integrations.Core.InvokeLLM({
-        prompt: basePrompt + `\n\nСодержимое документа:\n${docText}`,
-        response_json_schema: extractionSchema,
-      });
-    }
+    // Step 3: detect oncology type from diagnosis, then extract specific fields with explicit field list
+    const diagText = (baseResult.diagnoses || []).map(d => d.text).filter(Boolean).join(" ");
+    const detectedType = detectOncologyType(diagText || baseResult.mkb_code || "");
 
-    // Merge extracted data into form
-    const merged = { ...data };
-    if (result.case_number) merged.case_number = result.case_number;
-    if (result.diagnoses?.length > 0) merged.diagnoses = result.diagnoses;
-    if (result.mkb_code) { merged.mkb_code = result.mkb_code; merged.mkb_description = result.mkb_description || ""; }
-    if (result.tumor_stage) merged.tumor_stage = result.tumor_stage;
-    if (result.t_stage) merged.t_stage = result.t_stage;
-    if (result.n_stage) merged.n_stage = result.n_stage;
-    if (result.m_stage) merged.m_stage = result.m_stage;
-    if (result.immunohistochemistry) merged.immunohistochemistry = result.immunohistochemistry;
-    if (result.molecular_markers) merged.molecular_markers = result.molecular_markers;
-
-    // Map extracted oncology_specific_fields to the correct field keys used by OncologySpecificFields
-    const diagText = (result.diagnoses || merged.diagnoses || []).map(d => d.text).filter(Boolean).join(" ");
-    const detectedType = detectOncologyType(diagText || result.mkb_code || "");
-    const extractedSpecific = result.oncology_specific_fields || {};
-
-    if (Object.keys(extractedSpecific).length > 0 && detectedType) {
-      // Build a normalized map: try to match extracted keys/values to known field keys+options
-      const normalizedSpecific = { ...(merged.oncology_specific_fields || {}) };
-      for (const field of detectedType.fields) {
-        // Check if key already set correctly
-        if (extractedSpecific[field.key]) {
-          normalizedSpecific[field.key] = extractedSpecific[field.key];
-          continue;
+    let normalizedSpecific = {};
+    if (detectedType && detectedType.fields.length > 0) {
+      // Build explicit field instructions with all options
+      const fieldInstructions = detectedType.fields.map(f => {
+        if (f.options) {
+          return `- "${f.key}" (${f.label}): выбери ТОЧНО одно из: [${f.options.map(o => `"${o}"`).join(", ")}]`;
         }
-        // Try to find by label match (fuzzy)
-        const labelLower = field.label.toLowerCase();
-        for (const [k, v] of Object.entries(extractedSpecific)) {
-          const kLower = k.toLowerCase();
-          // Match if extracted key contains significant words from field label
-          const labelWords = labelLower.split(/[\s/()+–-]+/).filter(w => w.length > 3);
-          const matched = labelWords.some(w => kLower.includes(w));
-          if (matched && v) {
-            // Try to find the best matching option
-            if (field.options) {
-              const valLower = String(v).toLowerCase();
-              const bestOpt = field.options.find(opt => {
-                const oLower = opt.toLowerCase();
-                return oLower.includes(valLower) || valLower.includes(oLower.split(/[\s(]+/)[0]);
-              });
-              normalizedSpecific[field.key] = bestOpt || field.options.find(opt => opt !== "Не определялся" && opt !== "Не определялась") || v;
-            } else {
-              normalizedSpecific[field.key] = String(v);
-            }
-            break;
+        return `- "${f.key}" (${f.label}): строка`;
+      }).join("\n");
+
+      const specificSchema = {
+        type: "object",
+        properties: Object.fromEntries(detectedType.fields.map(f => [f.key, { type: "string" }]))
+      };
+
+      const specificPrompt = `Ты — медицинский эксперт-онколог. Внимательно прочитай весь документ и найди значения КАЖДОГО из следующих параметров для нозологии "${detectedType.label}".
+
+Для КАЖДОГО параметра найди значение в документе. Если значение явно указано — укажи его. Если не указано — оставь пустую строку "".
+
+ПАРАМЕТРЫ ДЛЯ ЗАПОЛНЕНИЯ (используй ТОЧНЫЕ значения из списка вариантов):
+${fieldInstructions}
+
+ВАЖНО: Ищи в документе упоминания HER2, MSI, MSS, MMR, PD-L1, CPS, FGFR2, тип по Lauren, гистологию и любые другие биомаркеры. Они могут быть записаны в разных форматах.${docContext}
+
+Верни JSON только с этими ключами.`;
+
+      const specificResult = await base44.integrations.Core.InvokeLLM({
+        prompt: specificPrompt,
+        ...(imageUrl && { file_urls: [imageUrl] }),
+        response_json_schema: specificSchema,
+      });
+
+      // Map to valid options
+      for (const field of detectedType.fields) {
+        const raw = specificResult?.[field.key];
+        if (!raw) continue;
+        if (field.options) {
+          const rawLower = String(raw).toLowerCase().trim();
+          // Exact match first
+          const exact = field.options.find(o => o.toLowerCase() === rawLower);
+          if (exact) { normalizedSpecific[field.key] = exact; continue; }
+          // Partial match
+          const partial = field.options.find(o => {
+            const oLower = o.toLowerCase();
+            return oLower.includes(rawLower) || rawLower.includes(oLower.replace(/[^а-яa-z0-9]/gi, "").slice(0, 6));
+          });
+          if (partial) { normalizedSpecific[field.key] = partial; continue; }
+          // Semantic shortcuts
+          if (/отриц|negat|0\/1|0\+|1\+(?!.*fish)|не.*полож/i.test(raw)) {
+            const neg = field.options.find(o => /отриц|negat/i.test(o));
+            if (neg) { normalizedSpecific[field.key] = neg; continue; }
           }
+          if (/полож|posit|3\+|amplif/i.test(raw)) {
+            const pos = field.options.find(o => /полож|posit/i.test(o) && !/не.*полож/i.test(o));
+            if (pos) { normalizedSpecific[field.key] = pos; continue; }
+          }
+          if (/mss|pmmr|proficien/i.test(raw)) {
+            const mss = field.options.find(o => /mss|pmmr/i.test(o));
+            if (mss) { normalizedSpecific[field.key] = mss; continue; }
+          }
+          if (/msi.?h|dmmr|deficien/i.test(raw)) {
+            const msih = field.options.find(o => /msi.?h|dmmr/i.test(o));
+            if (msih) { normalizedSpecific[field.key] = msih; continue; }
+          }
+        } else {
+          normalizedSpecific[field.key] = String(raw);
         }
       }
-      merged.oncology_specific_fields = normalizedSpecific;
-    } else if (Object.keys(extractedSpecific).length > 0) {
-      merged.oncology_specific_fields = { ...(merged.oncology_specific_fields || {}), ...extractedSpecific };
     }
 
-    // Store extracted diagnostics/treatments for step 2
-    if (result.diagnostics_performed?.length > 0) merged._extracted_diagnostics = result.diagnostics_performed;
-    if (result.treatment_performed?.length > 0) merged._extracted_treatments = result.treatment_performed;
+    // Step 4: merge everything
+    const merged = { ...data };
+    if (baseResult.case_number) merged.case_number = baseResult.case_number;
+    if (baseResult.diagnoses?.length > 0) merged.diagnoses = baseResult.diagnoses;
+    if (baseResult.mkb_code) { merged.mkb_code = baseResult.mkb_code; merged.mkb_description = baseResult.mkb_description || ""; }
+    if (baseResult.tumor_stage) merged.tumor_stage = baseResult.tumor_stage;
+    if (baseResult.t_stage) merged.t_stage = baseResult.t_stage;
+    if (baseResult.n_stage) merged.n_stage = baseResult.n_stage;
+    if (baseResult.m_stage) merged.m_stage = baseResult.m_stage;
+    if (baseResult.immunohistochemistry) merged.immunohistochemistry = baseResult.immunohistochemistry;
+    if (baseResult.molecular_markers) merged.molecular_markers = baseResult.molecular_markers;
+    if (Object.keys(normalizedSpecific).length > 0) {
+      merged.oncology_specific_fields = { ...(merged.oncology_specific_fields || {}), ...normalizedSpecific };
+    }
+    if (baseResult.diagnostics_performed?.length > 0) merged._extracted_diagnostics = baseResult.diagnostics_performed;
+    if (baseResult.treatment_performed?.length > 0) merged._extracted_treatments = baseResult.treatment_performed;
 
     onChange(merged);
     setExtractingData(false);
