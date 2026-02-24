@@ -371,13 +371,15 @@ ${caseContext}
   };
 
   const filteredItems = allItems.filter(item => {
-    const srcOk = activeSection === "all" || normalizeSource(item.source) === activeSection.toLowerCase();
+    const srcOk = activeSection === "all" || normalizeSource(item.source) === activeSection;
     const catOk = activeCategory === "all" || getItemCategory(item) === activeCategory;
     return srcOk && catOk;
   });
 
   const filteredMissing = (analysisResult?.missing_items || []).filter(item => {
-    return activeCategory === "all" || getItemCategory(item) === activeCategory;
+    const srcOk = activeSection === "all" || normalizeSource(item.source) === activeSection;
+    const catOk = activeCategory === "all" || getItemCategory(item) === activeCategory;
+    return srcOk && catOk;
   });
 
   // Case summary fields
