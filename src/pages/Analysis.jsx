@@ -309,8 +309,16 @@ ${caseContext}
     return t || "неизвестно";
   };
 
+  const normalizeSource = (src) => {
+    const s = (src || "").toLowerCase();
+    if (s.includes("russco") || s.includes("руссо")) return "russco";
+    if (s.includes("минздрав") || s.includes("minzdrav") || s.includes("cr.min")) return "минздрав";
+    if (s.includes("nccn")) return "nccn";
+    return s;
+  };
+
   const filteredItems = allItems.filter(item => {
-    const srcOk = activeSection === "all" || (item.source || "").toLowerCase().includes(activeSection.toLowerCase());
+    const srcOk = activeSection === "all" || normalizeSource(item.source) === activeSection.toLowerCase();
     const catOk = activeCategory === "all" || getItemCategory(item) === activeCategory;
     return srcOk && catOk;
   });
