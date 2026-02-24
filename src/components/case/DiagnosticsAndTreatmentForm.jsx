@@ -50,10 +50,14 @@ export default function DiagnosticsAndTreatmentForm({ diagnostics, treatments, o
       // Try to match extracted name to known list, or keep as-is (don't force "Другое")
       const currentOptions = aiDiagnostics.length > 0 ? aiDiagnostics : DEFAULT_DIAGNOSTICS;
       const normalized = caseData._extracted_diagnostics.map(d => {
-        const nameVal = d.name || d.type || "";
-        const isKnown = currentOptions.includes(nameVal);
-        if (isKnown) return { ...d, name: nameVal };
-        // Keep the actual name directly instead of mapping to "Другое"
+        const nameVal = (d.name || d.type || "").trim();
+        if (!nameVal) return { ...d, name: "Другое", custom_name: "" };
+        const isKnown = currentOptions.some(o => o.toLowerCase() === nameVal.toLowerCase());
+        if (isKnown) return { ...d, name: currentOptions.find(o => o.toLowerCase() === nameVal.toLowerCase()) };
+        // Not in dropdown — add it dynamically to options and keep as-is
+        if (!currentOptions.includes(nameVal)) {
+          currentOptions.splice(currentOptions.length - 1, 0, nameVal); // insert before "Другое"
+        }
         return { ...d, name: nameVal };
       });
       onDiagnosticsChange(normalized);
