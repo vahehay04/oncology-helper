@@ -363,10 +363,28 @@ ${fieldInstructions}
       }
     }
 
+    // Normalize diagnosis types to allowed values
+    const normalizeDiagnosisType = (raw) => {
+      if (!raw) return "Основной 1";
+      const r = raw.toLowerCase();
+      if (/основн.*1|основной\s*1|первый|первичн/i.test(r)) return "Основной 1";
+      if (/основн.*2|основной\s*2/i.test(r)) return "Основной 2";
+      if (/осложн/i.test(r)) return "Осложнение";
+      if (/сопут/i.test(r)) return "Сопутствующий";
+      if (/фоновый|фон/i.test(r)) return "Фоновый";
+      // First diagnosis defaults to Основной 1
+      return "Основной 1";
+    };
+
     // Step 4: merge everything
     const merged = { ...data };
     if (baseResult.case_number) merged.case_number = baseResult.case_number;
-    if (baseResult.diagnoses?.length > 0) merged.diagnoses = baseResult.diagnoses;
+    if (baseResult.diagnoses?.length > 0) {
+      merged.diagnoses = baseResult.diagnoses.map((d, idx) => ({
+        ...d,
+        type: normalizeDiagnosisType(idx === 0 ? (d.type || "Основной 1") : d.type),
+      }));
+    }
     if (baseResult.mkb_code) { merged.mkb_code = baseResult.mkb_code; merged.mkb_description = baseResult.mkb_description || ""; }
     if (baseResult.tumor_stage) merged.tumor_stage = baseResult.tumor_stage;
     if (baseResult.t_stage) merged.t_stage = baseResult.t_stage;
