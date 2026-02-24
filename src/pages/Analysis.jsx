@@ -362,36 +362,26 @@ ${caseContext}
     return t || "неизвестно";
   };
 
-  const normalizeSource = (src) => {
-    const s = (src || "").toLowerCase().trim();
-    if (s.includes("russco") || s.includes("руссо") || s.includes("rosoncoweb")) return "russco";
-    if (s.includes("минздрав") || s.includes("minzdrav") || s.includes("cr.min") || s.includes("ministry")) return "минздрав";
-    if (s.includes("nccn")) return "nccn";
-    return s;
+  const getItemSource = (item) => {
+    const url = (item.source_reference || "").toLowerCase();
+    const name = (item.source || "").toLowerCase();
+    if (url.startsWith("https://rosoncoweb.ru") || url.includes("rosoncoweb.ru") || name.includes("russco")) return "russco";
+    if (url.startsWith("https://minzdrav.gov.ru") || url.startsWith("https://cr.minzdrav.gov.ru") || url.includes("minzdrav") || name.includes("минздрав")) return "минздрав";
+    if (url.startsWith("https://www.nccn.org") || url.includes("nccn.org") || name.includes("nccn")) return "nccn";
+    return "other";
   };
 
-  // Deduplicate items by item name + source to avoid showing same item multiple times
-  const deduplicatedItems = allItems.reduce((acc, item) => {
-    const key = `${(item.item || "").toLowerCase()}|${normalizeSource(item.source)}`;
-    if (!acc.has(key)) acc.set(key, item);
-    return acc;
-  }, new Map());
-  const uniqueItems = Array.from(deduplicatedItems.values());
-
-  const filteredItems = uniqueItems.filter(item => {
-    const srcOk = activeSection === "all" || normalizeSource(item.source) === activeSection;
+  const filteredItems = allItems.filter(item => {
+    const srcOk = activeSection === "all" || getItemSource(item) === activeSection;
     const catOk = activeCategory === "all" || getItemCategory(item) === activeCategory;
     return srcOk && catOk;
   });
 
   const filteredMissing = (analysisResult?.missing_items || []).filter(item => {
-    const srcOk = activeSection === "all" || normalizeSource(item.source) === activeSection;
+    const srcOk = activeSection === "all" || getItemSource(item) === activeSection;
     const catOk = activeCategory === "all" || getItemCategory(item) === activeCategory;
     return srcOk && catOk;
   });
-
-  // Debug: show unique sources present in data
-  const presentSources = [...new Set(allItems.map(i => i.source).filter(Boolean))];
 
   // Case summary fields
   const diagText = clinicalCase.diagnosis_text;
