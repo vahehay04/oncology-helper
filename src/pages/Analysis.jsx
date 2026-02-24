@@ -454,9 +454,9 @@ ${caseContext}
             <div className="flex flex-wrap gap-3">
               <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-xl p-1">
                 <FilterBtn active={activeSection === "all"} onClick={() => setActiveSection("all")}>Все источники</FilterBtn>
-                <FilterBtn active={activeSection === "russco"} onClick={() => setActiveSection("RUSSCO")}>RUSSCO</FilterBtn>
-                <FilterBtn active={activeSection === "Минздрав"} onClick={() => setActiveSection("Минздрав")}>Минздрав РФ</FilterBtn>
-                <FilterBtn active={activeSection === "NCCN"} onClick={() => setActiveSection("NCCN")}>NCCN</FilterBtn>
+                <FilterBtn active={activeSection === "russco"} onClick={() => setActiveSection("russco")}>RUSSCO</FilterBtn>
+                <FilterBtn active={activeSection === "минздрав"} onClick={() => setActiveSection("минздрав")}>Минздрав РФ</FilterBtn>
+                <FilterBtn active={activeSection === "nccn"} onClick={() => setActiveSection("nccn")}>NCCN</FilterBtn>
               </div>
               <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-xl p-1">
                 <FilterBtn active={activeCategory === "all"} onClick={() => setActiveCategory("all")} icon={null}>Все</FilterBtn>
