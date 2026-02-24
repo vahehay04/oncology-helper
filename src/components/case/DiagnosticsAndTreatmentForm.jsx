@@ -47,12 +47,14 @@ export default function DiagnosticsAndTreatmentForm({ diagnostics, treatments, o
   // Pre-populate from extracted doc data — normalize type field for diagnostics
   useEffect(() => {
     if (caseData?._extracted_diagnostics?.length > 0 && diagnostics.length === 0) {
-      // Normalize: set name field, map to "Другое" + custom_name if not in list
+      // Try to match extracted name to known list, or keep as-is (don't force "Другое")
+      const currentOptions = aiDiagnostics.length > 0 ? aiDiagnostics : DEFAULT_DIAGNOSTICS;
       const normalized = caseData._extracted_diagnostics.map(d => {
         const nameVal = d.name || d.type || "";
-        const isKnown = DEFAULT_DIAGNOSTICS.includes(nameVal);
+        const isKnown = currentOptions.includes(nameVal);
         if (isKnown) return { ...d, name: nameVal };
-        return { ...d, name: "Другое", custom_name: nameVal };
+        // Keep the actual name directly instead of mapping to "Другое"
+        return { ...d, name: nameVal };
       });
       onDiagnosticsChange(normalized);
     }
