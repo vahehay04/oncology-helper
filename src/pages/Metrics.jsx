@@ -20,30 +20,48 @@ function calcMetrics(tests) {
   const done = tests.filter(t => t.status === "выполнен");
   if (done.length === 0) return null;
 
-  let tp = 0, fp = 0, fn = 0, total = 0, correct = 0;
+  const CLASSES = ["рекомендовано", "не_рекомендовано", "необходимо_дополнить"];
+  const counts = {}; // counts[expClass][aiClass]
+  CLASSES.forEach(c => { counts[c] = {}; CLASSES.forEach(a => { counts[c][a] = 0; }); });
+
+  let total = 0, correct = 0;
 
   done.forEach(test => {
     const expert = test.expert_items || [];
     const ai = test.ai_items || [];
     expert.forEach(eItem => {
       const aiItem = findAiItem(ai, eItem.item);
-      const aiStatus = aiItem?.ai_status || null;
       const expStatus = eItem.expert_status;
+      const aiStatus = aiItem?.ai_status || null;
       total++;
       if (aiStatus === expStatus) correct++;
-      // For binary: "не_рекомендовано" / "необходимо_дополнить" = positive (violation)
-      const expPositive = expStatus !== "рекомендовано";
-      const aiPositive = aiStatus && aiStatus !== "рекомендовано";
-      if (expPositive && aiPositive) tp++;
-      if (!expPositive && aiPositive) fp++;
-      if (expPositive && !aiPositive) fn++;
+      if (counts[expStatus] && aiStatus && counts[expStatus][aiStatus] !== undefined) {
+        counts[expStatus][aiStatus]++;
+      }
     });
   });
 
+  // Macro-averaged precision, recall, F1 across all classes present in expert data
+  const classMetrics = CLASSES.map(c => {
+    const tp = counts[c][c] || 0;
+    const fp = CLASSES.reduce((s, e) => s + (e !== c ? (counts[e][c] || 0) : 0), 0);
+    const fn = CLASSES.reduce((s, a) => s + (a !== c ? (counts[c][a] || 0) : 0), 0);
+    const support = tp + fn; // total expert items for this class
+    const prec = (tp + fp) > 0 ? tp / (tp + fp) : null;
+    const rec = (tp + fn) > 0 ? tp / (tp + fn) : null;
+    const f1 = (prec !== null && rec !== null && prec + rec > 0) ? 2 * prec * rec / (prec + rec) : null;
+    return { prec, rec, f1, support };
+  }).filter(m => m.support > 0); // only classes that appear in expert data
+
+  const avg = (arr, key) => {
+    const vals = arr.map(m => m[key]).filter(v => v !== null);
+    return vals.length > 0 ? vals.reduce((s, v) => s + v, 0) / vals.length : 0;
+  };
+
   const accuracy = total > 0 ? correct / total : 0;
-  const precision = (tp + fp) > 0 ? tp / (tp + fp) : 0;
-  const recall = (tp + fn) > 0 ? tp / (tp + fn) : 0;
-  const f1 = (precision + recall) > 0 ? 2 * precision * recall / (precision + recall) : 0;
+  const precision = avg(classMetrics, "prec");
+  const recall = avg(classMetrics, "rec");
+  const f1 = avg(classMetrics, "f1");
   const avgTime = done.filter(t => t.response_time_ms).reduce((s, t) => s + t.response_time_ms, 0) / (done.filter(t => t.response_time_ms).length || 1);
 
   return { accuracy, precision, recall, f1, avgTime, total, correct, done: done.length };
