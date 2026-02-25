@@ -6,6 +6,16 @@ import { Plus, Play, Trash2, CheckCircle2, Clock, BarChart2, Loader2, ChevronDow
 import { MetricsRadar, ResponseTimeChart } from "@/components/metrics/MetricsChart";
 
 // Calculate classification metrics from completed tests
+// Fuzzy match: find AI item by name (exact or substring)
+function findAiItem(aiItems, expertItemName) {
+  const norm = s => (s || "").toLowerCase().trim().replace(/[\s\-_]+/g, " ");
+  const target = norm(expertItemName);
+  return aiItems.find(a => {
+    const src = norm(a.item);
+    return src === target || src.includes(target) || target.includes(src);
+  });
+}
+
 function calcMetrics(tests) {
   const done = tests.filter(t => t.status === "выполнен");
   if (done.length === 0) return null;
@@ -16,7 +26,7 @@ function calcMetrics(tests) {
     const expert = test.expert_items || [];
     const ai = test.ai_items || [];
     expert.forEach(eItem => {
-      const aiItem = ai.find(a => a.item?.toLowerCase() === eItem.item?.toLowerCase());
+      const aiItem = findAiItem(ai, eItem.item);
       const aiStatus = aiItem?.ai_status || null;
       const expStatus = eItem.expert_status;
       total++;
