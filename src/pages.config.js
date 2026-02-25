@@ -50,9 +50,9 @@
 import Analysis from './pages/Analysis';
 import CasesList from './pages/CasesList';
 import Home from './pages/Home';
+import Metrics from './pages/Metrics';
 import NewCase from './pages/NewCase';
 import PatientChat from './pages/PatientChat';
-import Metrics from './pages/Metrics';
 import __Layout from './Layout.jsx';
 
 
@@ -60,9 +60,9 @@ export const PAGES = {
     "Analysis": Analysis,
     "CasesList": CasesList,
     "Home": Home,
+    "Metrics": Metrics,
     "NewCase": NewCase,
     "PatientChat": PatientChat,
-    "Metrics": Metrics,
 }
 
 export const pagesConfig = {

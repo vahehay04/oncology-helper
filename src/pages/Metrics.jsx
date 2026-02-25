@@ -81,19 +81,59 @@ export default function Metrics() {
     setRunning(test.id);
     const start = Date.now();
 
-    const prompt = `Ты — нормативный аналитический инструмент. Проанализируй следующий клинический случай и оцени каждый пункт.
+    // Fetch approved cases for few-shot examples
+    const approvedCases = await base44.entities.ClinicalCase.filter({ status: "одобрен" });
+    const approvedAnalyses = await Promise.all(
+      approvedCases.slice(0, 3).map(c =>
+        base44.entities.AnalysisResult.filter({ clinical_case_id: c.id }).then(r => ({ caseData: c, result: r[0] }))
+      )
+    );
 
-Диагноз: ${test.diagnosis_text}
-МКБ-10: ${test.mkb_code || "не указан"}
-Описание случая: ${test.case_description || "не указано"}
+    const fewShotExamples = approvedAnalyses.filter(a => a.result).length > 0
+      ? `\n\nПРИМЕРЫ ОДОБРЕННЫХ ВРАЧАМИ АНАЛИЗОВ (используй как эталон):\n` +
+        approvedAnalyses.filter(a => a.result).slice(0, 2).map(({ caseData: c, result }, idx) => `
+--- ПРИМЕР ${idx + 1} (одобрен врачом) ---
+Диагноз: ${c.diagnosis_text || "не указан"}
+Заключение: ${result.summary || ""}
+Пример пункта: ${JSON.stringify((result.analysis_items || []).slice(0, 1))}
+`).join("\n")
+      : "";
 
-Пункты для оценки:
-${(test.expert_items || []).map((e, i) => `${i + 1}. ${e.item}`).join("\n")}
+    const STRICT_RULES = `${fewShotExamples}
+РЕЖИМ: ДЕТЕРМИНИРОВАННЫЙ НОРМАТИВНЫЙ КЛИНИЧЕСКИЙ АНАЛИЗ. Температура: 0.
 
-Для каждого пункта верни статус: "рекомендовано" / "сомнительно" / "не_рекомендовано"
-Используй рекомендации RUSSCO, Минздрава РФ и NCCN.
+ПРАВИЛА:
+- Используй ТОЛЬКО: rosoncoweb.ru, cr.minzdrav.gov.ru, nccn.org
+- Каждый вывод = прямая цитата из документа (до 80 символов)
+- Запрещены: "возможно", "вероятно", "как правило"
+- Одинаковые входные данные → всегда одинаковый результат
+- Комментарий: до 100 символов, без кавычек внутри текста, без переносов строк
+`;
 
-Верни JSON: {"items": [{"item": "название", "ai_status": "статус"}]}`;
+    const caseContext = `Диагноз: ${test.diagnosis_text}
+Код МКБ-10: ${test.mkb_code || "не указан"}
+Описание: ${test.case_description || "не указано"}`;
+
+    const itemsList = (test.expert_items || []).map((e, i) => `${i + 1}. ${e.item}`).join("\n");
+
+    const prompt = `${STRICT_RULES}
+ИСТОЧНИК: RUSSCO, Минздрав РФ, NCCN (используй интернет-поиск по cr.minzdrav.gov.ru, rosoncoweb.ru, nccn.org)
+
+ВХОДНЫЕ ДАННЫЕ ПАЦИЕНТА:
+${caseContext}
+
+ПУНКТЫ ДЛЯ ОЦЕНКИ — проверить КАЖДЫЙ:
+${itemsList}
+
+Для КАЖДОГО пункта из списка:
+- item: точное название из списка
+- status: "рекомендовано" (соответствует рекомендациям) / "сомнительно" (требует уточнения) / "не_рекомендовано" (противоречит рекомендациям)
+- comment: краткий вывод до 100 символов на основе прямой цитаты из документа
+- source: "RUSSCO" / "Минздрав" / "NCCN"
+- source_reference: URL источника
+
+ВАЖНО: Верни ТОЛЬКО валидный JSON без markdown, без переносов строк внутри строковых значений.
+Формат: {"items":[{"item":"название","status":"рекомендовано","comment":"краткий вывод","source":"Минздрав","source_reference":"https://cr.minzdrav.gov.ru/"}]}`;
 
     const result = await base44.integrations.Core.InvokeLLM({
       prompt,
@@ -105,8 +145,15 @@ ${(test.expert_items || []).map((e, i) => `${i + 1}. ${e.item}`).join("\n")}
     });
 
     const elapsed = Date.now() - start;
+    
+    // Map status to match expert format
+    const aiItems = (result?.items || []).map(item => ({
+      item: item.item,
+      ai_status: item.status || "сомнительно"
+    }));
+
     await base44.entities.TestCase.update(test.id, {
-      ai_items: result?.items || [],
+      ai_items: aiItems,
       response_time_ms: elapsed,
       status: "выполнен"
     });
