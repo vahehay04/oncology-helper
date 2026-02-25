@@ -6,13 +6,25 @@ import { Plus, Play, Trash2, CheckCircle2, Clock, BarChart2, Loader2, ChevronDow
 import { MetricsRadar, ResponseTimeChart } from "@/components/metrics/MetricsChart";
 
 // Calculate classification metrics from completed tests
-// Fuzzy match: find AI item by name (exact or substring)
+// Find AI item by name: exact match first, then word-overlap fallback
 function findAiItem(aiItems, expertItemName) {
   const norm = s => (s || "").toLowerCase().trim().replace(/[\s\-_]+/g, " ");
   const target = norm(expertItemName);
-  return aiItems.find(a => {
+  // 1. Exact match
+  const exact = aiItems.find(a => norm(a.item) === target);
+  if (exact) return exact;
+  // 2. One fully contains the other — only if longer string is at least 5 chars
+  const contained = aiItems.find(a => {
     const src = norm(a.item);
-    return src === target || src.includes(target) || target.includes(src);
+    return src.length >= 5 && target.length >= 5 && (src.includes(target) || target.includes(src));
+  });
+  if (contained) return contained;
+  // 3. Word-overlap: >=2 significant words in common
+  const words = s => s.split(" ").filter(w => w.length >= 3);
+  const targetWords = new Set(words(target));
+  return aiItems.find(a => {
+    const overlap = words(norm(a.item)).filter(w => targetWords.has(w));
+    return overlap.length >= 2;
   });
 }
 
