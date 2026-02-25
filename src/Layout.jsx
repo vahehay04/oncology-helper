@@ -74,6 +74,12 @@ export default function Layout({ children, currentPageName }) {
                 >
                   + Новый случай
                 </Link>
+                <Link
+                  to={createPageUrl("Metrics")}
+                  className="px-3 py-1.5 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
+                >
+                  Метрики
+                </Link>
               </nav>
             )}
           </div>
