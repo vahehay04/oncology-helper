@@ -334,7 +334,7 @@ ${itemsList}
                       </thead>
                       <tbody>
                         {(test.expert_items || []).map((ei, i) => {
-                          const aiItem = (test.ai_items || []).find(a => a.item?.toLowerCase() === ei.item?.toLowerCase());
+                          const aiItem = findAiItem(test.ai_items || [], ei.item);
                           const match = aiItem && aiItem.ai_status === ei.expert_status;
                           return (
                             <tr key={i} className="border-t border-gray-50">
