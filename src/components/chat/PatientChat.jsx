@@ -76,8 +76,11 @@ export default function PatientChat() {
       ? [documentContent.replace("[image:", "").replace("]", "")]
       : undefined;
 
+    const isReliability = btn.label === "Анализ на соответствие";
+    const systemPrompt = isReliability ? RELIABILITY_PROMPT : PATIENT_SYSTEM_PROMPT;
+
     const res = await base44.integrations.Core.InvokeLLM({
-      prompt: `${PATIENT_SYSTEM_PROMPT}\n\nЗАПРОС: ${btn.prompt}${docCtx}`,
+      prompt: `${systemPrompt}\n\nЗАПРОС: ${btn.prompt}${docCtx}`,
       add_context_from_internet: true,
       ...(file_urls && { file_urls }),
     });
