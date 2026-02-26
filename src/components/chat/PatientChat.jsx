@@ -123,8 +123,10 @@ export default function PatientChat() {
               exit={{ opacity: 0, y: -10 }}
               className="pt-12 pb-8 text-center"
             >
-              <h1 className="text-5xl font-light text-gray-300 mb-3">Доктор рядом</h1>
-              <p className="text-gray-400 text-sm">AI-консультант, который объяснит медицинские рекомендации понятно и просто.</p>
+              <div id="tour-patient-hero">
+                <h1 className="text-5xl font-light text-gray-300 mb-3">Доктор рядом</h1>
+                <p className="text-gray-400 text-sm">AI-консультант, который объяснит медицинские рекомендации понятно и просто.</p>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -166,7 +168,7 @@ export default function PatientChat() {
       </div>
 
       <div className="pt-2 pb-6">
-        <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl px-5 py-3.5 shadow-sm">
+        <div id="tour-patient-input" className="flex items-center gap-3 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl px-5 py-3.5 shadow-sm">
           <input
             type="text"
             value={input}
@@ -185,6 +187,7 @@ export default function PatientChat() {
           )}
           <input ref={fileInputRef} type="file" accept=".pdf,.txt,.docx,.png,.jpg,.jpeg" onChange={handleFileChange} className="hidden" />
           <button
+            id="tour-patient-attach"
             onClick={() => fileInputRef.current?.click()}
             className="w-8 h-8 rounded-full border border-gray-200 hover:bg-gray-50 flex items-center justify-center transition-colors flex-shrink-0"
           >
