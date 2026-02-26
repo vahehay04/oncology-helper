@@ -111,6 +111,7 @@ export default function PatientChat() {
 
   return (
     <div className="flex-1 flex flex-col max-w-2xl w-full mx-auto px-4 pb-4" style={{ minHeight: "calc(100vh - 80px)" }}>
+      <OnboardingTour role="patient" />
       <div className="flex-1 overflow-y-auto py-6 flex flex-col">
 
         <AnimatePresence>
