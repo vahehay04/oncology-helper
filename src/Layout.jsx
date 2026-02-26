@@ -51,35 +51,6 @@ export default function Layout({ children, currentPageName }) {
                 >
                   + Новый случай
                 </Link>
-                <Link
-                  to={createPageUrl("Metrics")}
-                  className="px-3 py-1.5 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
-                >
-                  Метрики
-                </Link>
-              </nav>
-            )}
-
-            {isSpecialist && isHome && (
-              <nav className="flex items-center gap-1">
-                <Link
-                  to={createPageUrl("CasesList")}
-                  className="px-3 py-1.5 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
-                >
-                  Мои случаи
-                </Link>
-                <Link
-                  to={createPageUrl("NewCase")}
-                  className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
-                >
-                  + Новый случай
-                </Link>
-                <Link
-                  to={createPageUrl("Metrics")}
-                  className="px-3 py-1.5 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
-                >
-                  Метрики
-                </Link>
               </nav>
             )}
           </div>

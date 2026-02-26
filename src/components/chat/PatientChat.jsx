@@ -7,6 +7,7 @@ import FileAttachment from "./FileAttachment";
 import ReadingIndicator from "./ReadingIndicator";
 import ChatMessage from "./ChatMessage";
 import { PATIENT_SYSTEM_PROMPT } from "@/components/lib/sourcePrompt";
+import OnboardingTour from "@/components/onboarding/OnboardingTour";
 
 const ACTION_BUTTONS = [
   { label: "Получить объяснения", prompt: "Объясни простыми словами все рекомендации из документа. Что мне нужно знать и делать?" },
