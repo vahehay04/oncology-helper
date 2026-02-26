@@ -37,21 +37,21 @@ const STEPS_SPECIALIST = [
 
 const STEPS_PATIENT = [
   {
-    target: "tour-role-switch",
-    title: "Выбор роли",
-    text: "Здесь вы можете переключаться между режимом пациента и специалиста.",
+    target: "tour-patient-hero",
+    title: "Добро пожаловать!",
+    text: "Это ваш персональный AI-помощник. Он поможет понять медицинские рекомендации и ответит на вопросы.",
     position: "bottom",
   },
   {
     target: "tour-patient-input",
     title: "Задайте вопрос",
-    text: "Напишите любой вопрос об онкологическом лечении — ИИ ответит понятным языком.",
+    text: "Напишите любой вопрос об онкологическом лечении — ИИ ответит понятным языком. Например: «Достоверны ли рекомендации моего врача?»",
     position: "top",
   },
   {
     target: "tour-patient-attach",
     title: "Загрузить документ",
-    text: "Прикрепите справку или выписку — ИИ разберёт её и объяснит суть простыми словами.",
+    text: "Прикрепите справку или выписку от врача — ИИ разберёт её и объяснит суть простыми словами.",
     position: "top",
   },
 ];
@@ -137,7 +137,7 @@ function Tooltip({ step, total, onNext, onPrev, onClose, targetRect }) {
 
 export default function OnboardingTour({ role }) {
   const storageKey = `onboarding_done_${role}`;
-  const [active, setActive] = useState(false);
+  const [active, setActive] = useState(() => !sessionStorage.getItem(`onboarding_done_${role}`));
   const [stepIndex, setStepIndex] = useState(0);
   const [targetRect, setTargetRect] = useState(null);
 
