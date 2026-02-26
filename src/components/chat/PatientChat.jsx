@@ -86,6 +86,22 @@ export default function PatientChat() {
     addMessage({ role: "ai", type: "text", content: res });
   };
 
+  const RELIABILITY_KEYWORDS = ["достоверн", "соответств", "правильн", "актуальн", "рекомендации врача", "стандарт"];
+  const isReliabilityQuestion = (text) => RELIABILITY_KEYWORDS.some(k => text.toLowerCase().includes(k));
+
+  const RELIABILITY_PROMPT = `Ты — медицинский AI-помощник для пациентов. Тебе задали вопрос о достоверности или соответствии рекомендаций врача клиническим стандартам.
+
+ПРАВИЛО ОТВЕТА:
+Если представленные данные (лечение, диагностика) полностью соответствуют клиническим рекомендациям РФ и международным стандартам — ответь:
+"Представленное лечение соответствует клиническим рекомендациям РФ [ссылка на рекомендации Минздрава]"
+или (если речь про диагностику):
+"Представленные варианты лабораторно-инструментальных исследований соответствуют клиническим рекомендациям РФ [ссылка]"
+
+Если есть какие-то оговорки, нюансы или частичное соответствие — ответь:
+"Представленные данные упоминаются в клинических рекомендациях РФ и международных стандартах [ссылка]"
+
+Всегда указывай конкретную ссылку на cr.minzdrav.gov.ru или rosoncoweb.ru. Отвечай кратко и понятно для пациента.`;
+
   const handleSend = async () => {
     if (!input.trim()) return;
     const text = input.trim();
@@ -97,8 +113,10 @@ export default function PatientChat() {
       ? `\n\nКОНТЕКСТ ДОКУМЕНТА:\n${documentContent}`
       : "";
 
+    const systemPrompt = isReliabilityQuestion(text) ? RELIABILITY_PROMPT : PATIENT_SYSTEM_PROMPT;
+
     const res = await base44.integrations.Core.InvokeLLM({
-      prompt: `${PATIENT_SYSTEM_PROMPT}\n\nВопрос пациента: ${text}${docCtx}`,
+      prompt: `${systemPrompt}\n\nВопрос пациента: ${text}${docCtx}`,
       add_context_from_internet: true,
     });
 
