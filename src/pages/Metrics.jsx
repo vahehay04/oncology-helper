@@ -121,78 +121,82 @@ export default function Metrics() {
     setRunning(test.id);
     const start = Date.now();
 
-    // Fetch approved cases for few-shot examples
-    const approvedCases = await base44.entities.ClinicalCase.filter({ status: "одобрен" });
-    const approvedAnalyses = await Promise.all(
-      approvedCases.slice(0, 3).map(c =>
-        base44.entities.AnalysisResult.filter({ clinical_case_id: c.id }).then(r => ({ caseData: c, result: r[0] }))
-      )
-    );
-
-    const fewShotExamples = approvedAnalyses.filter(a => a.result).length > 0
-      ? `\n\nПРИМЕРЫ ОДОБРЕННЫХ ВРАЧАМИ АНАЛИЗОВ (используй как эталон):\n` +
-        approvedAnalyses.filter(a => a.result).slice(0, 2).map(({ caseData: c, result }, idx) => `
---- ПРИМЕР ${idx + 1} (одобрен врачом) ---
-Диагноз: ${c.diagnosis_text || "не указан"}
-Заключение: ${result.summary || ""}
-Пример пункта: ${JSON.stringify((result.analysis_items || []).slice(0, 1))}
-`).join("\n")
-      : "";
-
-    const STRICT_RULES = `${fewShotExamples}
-РЕЖИМ: ДЕТЕРМИНИРОВАННЫЙ НОРМАТИВНЫЙ КЛИНИЧЕСКИЙ АНАЛИЗ. Температура: 0.
-
-ПРАВИЛА:
-- Используй ТОЛЬКО: rosoncoweb.ru, cr.minzdrav.gov.ru, nccn.org
-- Каждый вывод = прямая цитата из документа (до 80 символов)
-- Запрещены: "возможно", "вероятно", "как правило"
-- Одинаковые входные данные → всегда одинаковый результат
-- Комментарий: до 100 символов, без кавычек внутри текста, без переносов строк
-`;
-
     const caseContext = `Диагноз: ${test.diagnosis_text}
 Код МКБ-10: ${test.mkb_code || "не указан"}
-Описание: ${test.case_description || "не указано"}`;
+Описание клинического случая (диагностика и лечение): ${test.case_description || "не указано"}`;
 
     const itemsList = (test.expert_items || []).map((e, i) => `${i + 1}. ${e.item}`).join("\n");
 
-    const prompt = `${STRICT_RULES}
-ИСТОЧНИК: RUSSCO, Минздрав РФ, NCCN (используй интернет-поиск по cr.minzdrav.gov.ru, rosoncoweb.ru, nccn.org)
+    const prompt = `ТЫ — экспертная онкологическая аналитическая система уровня senior CDSS.
+Ты обладаешь полными знаниями клинических рекомендаций RUSSCO (rosoncoweb.ru), Минздрава РФ (cr.minzdrav.gov.ru) и NCCN (nccn.org).
+Работай детерминированно: одни и те же входные данные → всегда одинаковый результат.
 
-ВХОДНЫЕ ДАННЫЕ ПАЦИЕНТА:
+════════════════════════════════════════════
+КЛИНИЧЕСКИЕ ДАННЫЕ ПАЦИЕНТА:
 ${caseContext}
+════════════════════════════════════════════
 
-ПУНКТЫ ДЛЯ ОЦЕНКИ — проверить КАЖДЫЙ (используй ТОЧНО такое же название пункта в ответе):
+ЗАДАЧА: проверить каждый пункт из списка на соответствие клиническим рекомендациям RUSSCO и Минздрава РФ для данного диагноза.
+
+ПУНКТЫ ДЛЯ ОЦЕНКИ (используй ТОЧНО такое же название пункта в ответе):
 ${itemsList}
 
-СТАТУСЫ (используй ТОЛЬКО эти три варианта):
-- "рекомендовано" — пункт соответствует клиническим рекомендациям, выполнен правильно
-- "не_рекомендовано" — пункт противоречит рекомендациям или не должен применяться
-- "необходимо_дополнить" — пункт не выполнен, но должен быть по рекомендациям
+СТАТУСЫ — используй ТОЛЬКО эти три варианта:
+- "рекомендовано" — пункт полностью соответствует клиническим рекомендациям для данного диагноза
+- "не_рекомендовано" — пункт противоречит рекомендациям или не показан при данном диагнозе
+- "необходимо_дополнить" — пункт не выполнен, но должен быть согласно рекомендациям
 
-КРИТИЧЕСКИ ВАЖНО:
+СТРОГИЕ ПРАВИЛА:
 1. Поле "item" — скопируй ДОСЛОВНО из списка выше, без изменений
 2. Используй ТОЛЬКО три статуса выше, никакие другие
 3. Верни ВСЕ ${(test.expert_items || []).length} пунктов из списка
+4. "source_reference" — только с доменов: rosoncoweb.ru, cr.minzdrav.gov.ru, nccn.org
+5. Запрещены: "возможно", "вероятно", "как правило" — только утвердительные формулировки
 
-Верни ТОЛЬКО валидный JSON без markdown:
-{"items":[{"item":"точное название из списка","status":"рекомендовано","comment":"краткий вывод до 80 символов","source":"Минздрав","source_reference":"https://cr.minzdrav.gov.ru/"}]}`;
+Верни валидный JSON:
+{"items":[{"item":"точное название из списка","status":"рекомендовано","comment":"краткий вывод до 100 символов","source":"RUSSCO 2024","source_reference":"https://rosoncoweb.ru/..."}]}`;
 
     const result = await base44.integrations.Core.InvokeLLM({
       prompt,
       add_context_from_internet: true,
       response_json_schema: {
         type: "object",
-        properties: { items: { type: "array", items: { type: "object" } } }
+        properties: {
+          items: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                item: { type: "string" },
+                status: { type: "string" },
+                comment: { type: "string" },
+                source: { type: "string" },
+                source_reference: { type: "string" }
+              }
+            }
+          }
+        }
       }
     });
 
     const elapsed = Date.now() - start;
-    
+
+    // Normalize status values to match expected format
+    const normalizeStatus = (s) => {
+      const v = (s || "").toLowerCase().trim().replace(/\s+/g, "_");
+      if (v.includes("не_рек") || v.includes("не рек") || v === "не_рекомендовано") return "не_рекомендовано";
+      if (v.includes("дополн") || v.includes("необход")) return "необходимо_дополнить";
+      if (v.includes("рекоменд")) return "рекомендовано";
+      return "рекомендовано"; // fallback
+    };
+
     // Map status to match expert format
     const aiItems = (result?.items || []).map(item => ({
       item: item.item,
-      ai_status: item.status || "сомнительно"
+      ai_status: normalizeStatus(item.status),
+      comment: item.comment,
+      source: item.source,
+      source_reference: item.source_reference
     }));
 
     await base44.entities.TestCase.update(test.id, {
