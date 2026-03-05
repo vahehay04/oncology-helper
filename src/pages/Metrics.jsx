@@ -358,40 +358,58 @@ ${itemsList}
                 {expandedTest === test.id && (
                   <div className="border-t border-gray-50 px-5 pb-5 pt-4">
                     <table className="w-full text-sm">
-                      <thead>
-                        <tr className="text-xs text-gray-400 uppercase">
-                          <th className="text-left pb-2 font-medium">Пункт</th>
-                          <th className="text-left pb-2 font-medium">Эксперт</th>
-                          <th className="text-left pb-2 font-medium">ИИ</th>
-                          <th className="text-left pb-2 font-medium">Совпадение</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {(test.expert_items || []).map((ei, i) => {
-                          const aiItem = findAiItem(test.ai_items || [], ei.item);
-                          const match = aiItem && aiItem.ai_status === ei.expert_status;
-                          return (
-                            <tr key={i} className="border-t border-gray-50">
-                              <td className="py-2 text-gray-700">{ei.item}</td>
-                              <td className="py-2">
-                                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${ei.expert_status === "рекомендовано" ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-600"}`}>
-                                  {ei.expert_status}
+                    <thead>
+                      <tr className="text-xs text-gray-400 uppercase">
+                        <th className="text-left pb-2 font-medium">Пункт</th>
+                        <th className="text-left pb-2 font-medium">Эксперт</th>
+                        <th className="text-left pb-2 font-medium">ИИ</th>
+                        <th className="text-left pb-2 font-medium">Источник</th>
+                        <th className="text-left pb-2 font-medium">✓</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(test.expert_items || []).map((ei, i) => {
+                        const aiItem = findAiItem(test.ai_items || [], ei.item);
+                        const match = aiItem && aiItem.ai_status === ei.expert_status;
+                        const statusColor = (s) => {
+                          if (s === "рекомендовано") return "bg-emerald-50 text-emerald-700";
+                          if (s === "не_рекомендовано") return "bg-red-50 text-red-600";
+                          return "bg-amber-50 text-amber-700";
+                        };
+                        return (
+                          <tr key={i} className="border-t border-gray-50">
+                            <td className="py-2 pr-3 text-gray-700 align-top">
+                              <div>{ei.item}</div>
+                              {aiItem?.comment && <div className="text-xs text-gray-400 mt-0.5 italic">{aiItem.comment}</div>}
+                            </td>
+                            <td className="py-2 pr-3 align-top">
+                              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColor(ei.expert_status)}`}>
+                                {ei.expert_status}
+                              </span>
+                            </td>
+                            <td className="py-2 pr-3 align-top">
+                              {aiItem ? (
+                                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColor(aiItem.ai_status)}`}>
+                                  {aiItem.ai_status}
                                 </span>
-                              </td>
-                              <td className="py-2">
-                                {aiItem ? (
-                                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${aiItem.ai_status === "рекомендовано" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
-                                    {aiItem.ai_status}
-                                  </span>
-                                ) : <span className="text-gray-300 text-xs">—</span>}
-                              </td>
-                              <td className="py-2">
-                                {aiItem ? (match ? "✅" : "❌") : "—"}
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
+                              ) : <span className="text-gray-300 text-xs">—</span>}
+                            </td>
+                            <td className="py-2 pr-3 align-top">
+                              {aiItem?.source_reference ? (
+                                <a href={aiItem.source_reference} target="_blank" rel="noopener noreferrer" className="text-xs text-indigo-500 underline hover:text-indigo-700">
+                                  {aiItem.source || "ссылка"}
+                                </a>
+                              ) : aiItem?.source ? (
+                                <span className="text-xs text-gray-400">{aiItem.source}</span>
+                              ) : <span className="text-gray-300 text-xs">—</span>}
+                            </td>
+                            <td className="py-2 align-top">
+                              {aiItem ? (match ? "✅" : "❌") : "—"}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
                     </table>
                   </div>
                 )}
